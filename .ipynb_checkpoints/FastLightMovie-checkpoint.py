@@ -107,7 +107,7 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 maxintensity=np.nanmax(data)
 
 def MovieWorker(tsnap):
-	interpolated2_R=RegularGridInterpolator((x1,x2), data[i_frame,:,:],fill_value=0,bounds_error=False,method='linear')
+	interpolated2_R=RegularGridInterpolator((x1,x2), data[tsnap,:,:],fill_value=0,bounds_error=False,method='linear')
 
 	i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0, interpolated2_R,thetao)
 	i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1, interpolated2_R,thetao)
@@ -120,16 +120,19 @@ def MovieWorker(tsnap):
 	print("Calculating an image at time t=%s (M)"%np.round(tsnap,5))
 	return(i_I0,i_I1,i_I2)
 
-T = np.linspace(i_tM,f_tM,snapshots)
-I0s = np.empty(len(T), dtype=object)
-I1s = np.empty(len(T), dtype=object)
-I2s = np.empty(len(T), dtype=object)
+I0s = []
+I1s = []
+I2s = []
 
-for i in range(len(T)):
-    I0s[i], I1s[i], I2s[i] = MovieWorker(T[i])
+for i in range(snapshots):
+    i0, i1, i2 = MovieWorker(i)
+    
+    I0s.append(i0)
+    I1s.append(i1)
+    I2s.append(i2)
 
-I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
-filename=path+"FastLight_Images_a_%s_i_%s_%s"%(spin_case,i_case,i_fname)
+filename=path+"FastLight_Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
+
 
 h5f = h5py.File(filename, 'w')
 h5f.create_dataset('bghts0', data=np.array(I0s))
@@ -138,5 +141,4 @@ h5f.create_dataset('bghts2', data=np.array(I2s))
 
 print("Images ",filename," created.\n")
 h5f.close()
-p.close()
 

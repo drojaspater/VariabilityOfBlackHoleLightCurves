@@ -131,7 +131,7 @@ for i in range(snapshots):
     I1s.append(i1)
     I2s.append(i2)
 
-filename=path+"FastLight_Images_a_%s_i_%s_%s"%(spin_case,i_case,i_fname)
+filename=path+"FastLight_Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
 
 
 h5f = h5py.File(filename, 'w')
