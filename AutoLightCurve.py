@@ -1,7 +1,6 @@
 from aart_func import *
 from params import * 
 import subprocess
-import pandas as pd
 import itertools
 
 # Params
