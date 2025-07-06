@@ -52,7 +52,7 @@ def extract_variables(filename):
 
 
 
-i_source = "i_inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349 _137.0_137.0 _3459.0.h5"
+i_source = "i_inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
 
 variables = extract_variables(i_source)
 
