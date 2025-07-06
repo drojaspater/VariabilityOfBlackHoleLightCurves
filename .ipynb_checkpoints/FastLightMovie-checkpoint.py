@@ -97,7 +97,7 @@ t0-=fact
 t1-=fact
 t2-=fact
 
-print("AART starts!")
+print("FastLight calculation starts!")
 
 i_dt = xtend/nt
 timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
