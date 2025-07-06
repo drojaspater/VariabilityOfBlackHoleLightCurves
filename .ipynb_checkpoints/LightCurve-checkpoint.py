@@ -199,7 +199,7 @@ subprocess.run(["python", "FastLightMovie.py"])
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
 h5f = h5py.File(path_InoisyEnvelope+i_fname, 'r')
-data_lc = np.array(inoisyfile['data/lightcurve_env'])
+data_lc = np.array(h5f['data/lightcurve_env'])
 h5f.close()
 
 # Importation of the slow-light movie 

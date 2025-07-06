@@ -315,7 +315,7 @@ def lb():
         supergrid2, N2, mask2, lim2 =grid_mask(hull_2i,hull_2e,dx2,limits)
         print("Number of points in the n=2 grid ", supergrid2.shape[0])
 
-    filename=path_LB+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+    filename=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
     h5f = h5py.File(filename, 'w')
 
     h5f.create_dataset('alpha', data=alpha_critc)

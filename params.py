@@ -152,7 +152,7 @@ maxbaseline=500
 npointsS=100    
 
 #For the generation of the images (movies)
-nthreads=5
+nthreads=1 ##
 
 # Useful for disk visualizations or when studying truncated disks.
 imag_cut=0
