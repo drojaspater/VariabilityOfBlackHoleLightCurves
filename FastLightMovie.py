@@ -52,7 +52,6 @@ hf = h5py.File(path_InoisyEnvelope+i_fname, 'r')
 
 try:
     data = np.array(hf['data/data_env'])
-    data = data[:256]
 except:
     data = np.array(hf['data/data_raw'])
 
