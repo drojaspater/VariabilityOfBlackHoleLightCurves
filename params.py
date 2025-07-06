@@ -4,7 +4,7 @@ print("\nThanks for using AART")
 #print("Copyright (C) 2025, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
 #BH's Spin
-spin_case=0.05
+spin_case=0.94
 #Observer's inclination  
 i_case=17
 
@@ -36,11 +36,11 @@ bvapp=0
 p_image=1
 limits=25
 #Resolution for the n=0 image [M]
-dx0=0.06
+dx0=0.4
 #Resolution for the n=1 image [M]
-dx1=0.06
+dx1=0.4
 #Resolution for the n=2 image [M]
-dx2=0.06
+dx2=0.4
 
 # Projection angles for the radon transformation
 radonangles=[0,90]
@@ -61,9 +61,9 @@ i_frame=0
 # Initial and final times in units of M
 i_tM=0
 #Makes sense when is less than the inosy temporal length 
-f_tM=1000
+f_tM=2500
 #Number of snapshots in that range    
-snapshots=256
+snapshots=2048
 
 isco = rms(spin_case)
 # SU's parameters for the envelope 

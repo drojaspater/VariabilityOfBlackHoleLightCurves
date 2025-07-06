@@ -3,7 +3,7 @@ from params import *
 
 print("Ray-tracing")
 
-fnbands=path_lb+"LensingBands_a_%s_i_%s.h5"%(spin_case,i_case)
+fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
 print("Reading file: ",fnbands)
 

@@ -629,7 +629,7 @@ def rs_bv(grid,mask):
 
     print("Computing the n=0 based on Beloborodov's approximation")
 
-    filename=path_rt+"Rays_bv_a_%s_i_%s.h5"%(spin_case,i_case)
+    filename=path_rt+"Rays_bv_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
     h5f = h5py.File(filename, 'w')
     h5f.create_dataset('rs0_bv', data=rs*maskkk)
     h5f.create_dataset('sign0_bv', data=redshift_sign)
@@ -654,7 +654,7 @@ def rt(supergrid0,mask0,supergrid1,mask1,supergrid2,mask2):
     print("Analytical ray-tracing of the n=0 band points")
     rs0,sign0,t0,phi0 = calculate_observables(supergrid0,mask0,thetao,spin_case,0,distance=D_obs)
     
-    filename=path_rt+"Rays_a_%s_i_%s.h5"%(spin_case,i_case)
+    filename=path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
     h5f = h5py.File(filename, 'w')
 
     h5f.create_dataset('rs0', data=rs0)

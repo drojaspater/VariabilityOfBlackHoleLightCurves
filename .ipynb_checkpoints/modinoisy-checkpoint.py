@@ -1,5 +1,17 @@
 from aart_func import *
-from params import * 
+from params_modinoisy import * 
+
+noise = float(sys.argv[1])  
+spin_case = float(sys.argv[2])
+f_tM = float(sys.argv[3])
+snapshots = float(sys.argv[4])
+i_source = str(sys.argv[5])
+
+
+horizon = 1+np.sqrt(1-spin_case**2)
+mup=1-np.sqrt(1-spin_case**2)
+
+print(f"[Script] Recibí noise = {noise}, spin_case = {spin_case}, f_tM = {f_tM}, snapshots = {snapshots}, i_source = {i_source}")
 
 print("Reading source inoisy file "+ path_inoisy + i_source)
 
@@ -64,6 +76,8 @@ for i in range(nt):
 
 lightcurver=lightcurver*dx*dy
 lightcurve=lightcurve*dx*dy
+
+i_fname = r"inoisy_n%s_i%s_ft%s_snap%s.h5"%(noise,spin_case,f_tM,snapshots)
 
 print("Creating modified inoisy file " + path_InoisyEnvelope +  i_fname)
 
