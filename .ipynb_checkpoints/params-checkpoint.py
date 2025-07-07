@@ -39,11 +39,11 @@ bvapp=0
 p_image=1
 limits=25
 #Resolution for the n=0 image [M]
-dx0 =0.6
+dx0 =0.8
 #Resolution for the n=1 image [M]
-dx1 =0.6
+dx1 =0.8
 #Resolution for the n=2 image [M]
-dx2 =0.6
+dx2 =0.8
 
 # Projection angle for the radon transformation
 
