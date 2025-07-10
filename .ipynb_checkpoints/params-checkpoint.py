@@ -70,7 +70,7 @@ i_tM=0
 #Makes sense when is less than the inoisy temporal length 
 f_tM=2500
 #Number of snapshots in that range    
-snapshots=256
+snapshots=3072
 
 dt = f_tM/snapshots 
 
