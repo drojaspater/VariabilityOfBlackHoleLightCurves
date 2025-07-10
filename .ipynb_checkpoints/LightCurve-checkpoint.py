@@ -191,9 +191,9 @@ def LightCurve(I_0,I_1,I_2, cor = 0):
     return light_curve
 
 # Creation of the .h5 data
-#subprocess.run(["python", "lensingbands.py"])
-#subprocess.run(["python", "raytracing.py"])
-#subprocess.run(["python", "iMovies.py"])
+subprocess.run(["python", "lensingbands.py"])
+subprocess.run(["python", "raytracing.py"])
+subprocess.run(["python", "iMovies.py"])
 #subprocess.run(["python", "FastLightMovie.py"])
 
 # Lecuture of inoisy
