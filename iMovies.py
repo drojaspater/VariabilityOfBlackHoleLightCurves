@@ -4,7 +4,7 @@ from multiprocessing import get_context
 
 print("Movies")
 
-fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+fnbands=path_lb+"LensingBands_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
 
 print("Reading file: ",fnbands)
 
@@ -24,7 +24,7 @@ N2=int(h5f["N2"][0])
 
 h5f.close()
 
-fnbands=path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+fnbands=path_rt+"Rays_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
 
 print("Reading file: ",fnbands)
 
@@ -150,7 +150,7 @@ def mp_worker(tsnap):
 def main():
     p = get_context("spawn").Pool(nthreads)
     I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
-    filename=path_sl+"Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
+    filename=path_sl+"Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
 
     h5f = h5py.File(filename, 'w')
     h5f.create_dataset('bghts0', data=np.array(I0s))

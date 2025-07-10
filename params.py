@@ -39,11 +39,11 @@ bvapp=0
 p_image=1
 limits=25
 #Resolution for the n=0 image [M]
-dx0 =10.0
+dx0 =0.1
 #Resolution for the n=1 image [M]
-dx1 =10.0
+dx1 =0.1
 #Resolution for the n=2 image [M]
-dx2 =10.0
+dx2 =0.1
 
 # Projection angle for the radon transformation
 
@@ -71,6 +71,8 @@ i_tM=0
 f_tM=2500
 #Number of snapshots in that range    
 snapshots=2048
+
+dt = f_tM/snapshots 
 
 isco = rms(spin_case)
 horizon = 1+np.sqrt(1-spin_case**2)

@@ -3,7 +3,7 @@ from params import *
 
 print("Computing a single image \n")
 
-fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+fnbands=path_lb+"LensingBands_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
 
 print("Reading file: ",fnbands)
 
@@ -23,7 +23,7 @@ N2=int(h5f["N2"][0])
 
 h5f.close()
 
-fnbands=path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+fnbands=path_rt+"Rays_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
 
 print("Reading file: ",fnbands)
 
@@ -129,7 +129,7 @@ for i in range(snapshots):
     I1s.append(i1)
     I2s.append(i2)
 
-filename=path_fl+"FastLight_Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
+filename=path_fl+"FastLight_Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
 
 
 h5f = h5py.File(filename, 'w')
