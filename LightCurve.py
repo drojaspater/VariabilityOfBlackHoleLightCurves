@@ -225,14 +225,24 @@ LightCurve_inoisy    = data_lc
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
 Time = np.linspace(i_tM,f_tM,snapshots)
-
+Time_inoisy
 df = pd.DataFrame({
-    'inoisy'   : LightCurve_inoisy,
     'SlowLight': LightCurve_SlowLight,
     'FastLight': LightCurve_FastLight,
     'Time': Time})
 
+Time_inoisy = np.linspace(0,2500,2048)
+
+df_inoisy = pd.DataFrame({
+    'inoisy'   : LightCurve_inoisy,
+    'Time' : Time_inoisy})
+
+
 df_name = path_lc + 'LightCurve_datas_dt%s_a%s_i%s_%s.csv'%(dt,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
+
+df_nameI = path_lc + 'LightCurve_%s.csv'%(i_fname[:-3])
+df.to_csv(df_nameI, index=False)
+
 print("The Light Curves was created!!!")
 
