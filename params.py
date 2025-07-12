@@ -70,7 +70,9 @@ i_tM=0
 #Makes sense when is less than the inoisy temporal length 
 f_tM=2500
 #Number of snapshots in that range    
-snapshots=4096
+snapshots=2048
+snapshots_inoisy = 2048
+#Parameter for change the number of snapshots
 
 dt = f_tM/snapshots 
 
