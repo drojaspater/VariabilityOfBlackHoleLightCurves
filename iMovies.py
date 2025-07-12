@@ -57,6 +57,26 @@ except:
 #inoisy has periodic boudaries, so we need to copy wrap the data with one frame
 data=np.concatenate((data,data[0,:,:][np.newaxis,:,:]),axis=0)
 
+
+##################################Change Emission Rate##################################
+## You can delate this section and nothing happen, this is only for the variation on the
+## Emission rate
+
+
+def LowerDimension(df):
+    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots, dtype=int)
+
+    data_N = np.zeros((len(selected_indices),data.shape[1],data.shape[2]))
+    for i in range(len(selected_indices)):
+        j = selected_indices[i]
+        data_N[i] =  df[j]
+        
+    return data_N
+
+data = LowerDimension(data)
+########################################################################################
+
+
 nt =data.shape[0] #inoisy time resolution
 ni = data.shape[1] #inoisy x resolution
 nj = data.shape[2] #inoisy y resolution
@@ -102,6 +122,7 @@ t2-=fact
 #t1+=fact2
 #t2+=fact2
 ### ###
+
 print("AART starts!")
 
 i_dt = xtend/nt
