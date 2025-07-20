@@ -71,7 +71,7 @@ i_tM=0
 f_tM=2500
 #Number of snapshots in that range   
 snapshots_inoisy = 2048
-snapshots= snapshots_inoisy // 1
+snapshots= snapshots_inoisy // 2
 #Parameter for change the number of snapshots
 
 dt = f_tM/snapshots 
