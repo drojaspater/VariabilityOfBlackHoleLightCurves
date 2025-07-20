@@ -29,10 +29,10 @@ def LightCurve(I_0,I_1,I_2, cor = 0):
     return light_curve
 
 # Creation of the .h5 data
-subprocess.run(["python", "lensingbands.py"])
-subprocess.run(["python", "raytracing.py"])
-subprocess.run(["python", "iMovies.py"])
-subprocess.run(["python", "FastLightMovie.py"])
+#subprocess.run(["python", "lensingbands.py"])
+#subprocess.run(["python", "raytracing.py"])
+#subprocess.run(["python", "iMovies.py"])
+#subprocess.run(["python", "FastLightMovie.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
@@ -41,27 +41,27 @@ data_lc = np.array(h5f['data/lightcurve_env'])
 h5f.close()
 
 # Importation of the slow-light movie 
-fimages= path_sl + "Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
-print("Reading file: ",fimages)
-h5f = h5py.File(fimages,'r')
-Is0=h5f['bghts0'][:]
-Is1=h5f['bghts1'][:]
-Is2=h5f['bghts2'][:]
-h5f.close()
-
-# Importation of the fast-light movie
-fimages= path_fl + "FastLight_Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
-print("Reading file: ",fimages)
-h5f = h5py.File(fimages,'r')
-I0=h5f['bghts0'][:]
-I1=h5f['bghts1'][:]
-I2=h5f['bghts2'][:]
-h5f.close() 
+#fimages= path_sl + "Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
+#print("Reading file: ",fimages)
+#h5f = h5py.File(fimages,'r')
+#Is0=h5f['bghts0'][:]
+#Is1=h5f['bghts1'][:]
+#Is2=h5f['bghts2'][:]
+#h5f.close()
+#
+## Importation of the fast-light movie
+#fimages= path_fl + "FastLight_Images_dt%s_a%s_i%s_%s.h5"%(dt,spin_case,i_case,i_fname[:-3])
+#print("Reading file: ",fimages)
+#h5f = h5py.File(fimages,'r')
+#I0=h5f['bghts0'][:]
+#I1=h5f['bghts1'][:]
+#I2=h5f['bghts2'][:]
+#h5f.close() 
 
 # Light Curve Generation 
 LightCurve_inoisy    = data_lc
-LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
-LightCurve_FastLight = LightCurve(I0,I1,I2)
+#LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
+#LightCurve_FastLight = LightCurve(I0,I1,I2)
 Time = np.linspace(i_tM,f_tM,snapshots_inoisy)
 
 ##################################Change Emission Rate##################################
@@ -82,14 +82,23 @@ def LowerDimension(df):
 Time  = LowerDimension(Time)
 ########################################################################################
 
+#df = pd.DataFrame({
+#    'SlowLight': LightCurve_SlowLight,
+#    'FastLight': LightCurve_FastLight,
+#    'Time': Time})
+#
+#dt_str = f"{dt:.2f}"
+#df_name = path_lc + 'LightCurve_datas_dt%s_a%s_i%s_%s.csv'%(dt_str,spin_case,i_case,i_fname[:-3])
+#df.to_csv(df_name, index=False)
+
 df = pd.DataFrame({
-    'SlowLight': LightCurve_SlowLight,
-    'FastLight': LightCurve_FastLight,
+    'inoisy': LightCurve_inoisy,
     'Time': Time})
 
-dt_str = f"{dt:.2f}"
-df_name = path_lc + 'LightCurve_datas_dt%s_a%s_i%s_%s.csv'%(dt_str,spin_case,i_case,i_fname[:-3])
+
+df_name = path_lc + i_fname
 df.to_csv(df_name, index=False)
+
 
 print("The Light Curves was created!!!")
 
