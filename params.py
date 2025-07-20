@@ -6,7 +6,7 @@ from aart_func import *
 #BH's Spin
 spin_case=0.94
 #Observer's inclination
-i_case=17.0
+i_case=60.0
 
 # Distance to M87 in meters
 dM=5.214795112e23  
