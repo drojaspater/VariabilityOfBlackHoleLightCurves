@@ -16,4 +16,4 @@ source /u/drojaspaternina/anaconda3/bin/activate
 conda activate Entorno_aart           
 
 echo "El trabajo empieza en $(hostname)"
-srun python LightCurve.py             
+srun python CurveSim.py             
