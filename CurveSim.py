@@ -3,7 +3,8 @@ from params import *
 from aart_func import *
 
 def similarity_by_ssim(img1, img2):
-    score, _ = ssim(img1, img2, full=True)
+    # Asegúrate de especificar el rango de datos (data_range)
+    score, _ = ssim(img1, img2, full=True, data_range=img1.max() - img1.min())
     return score
 
 
