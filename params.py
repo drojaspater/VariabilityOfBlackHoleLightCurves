@@ -1,12 +1,12 @@
 from aart_func import *
 
-#print("\nThanks for using AART")
-#print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
+print("\nThanks for using AART")
+print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
 #BH's Spin
 spin_case=0.94
 #Observer's inclination
-i_case=60.0
+i_case=17.0
 
 # Distance to M87 in meters
 dM=5.214795112e23  
@@ -39,11 +39,11 @@ bvapp=0
 p_image=1
 limits=25
 #Resolution for the n=0 image [M]
-dx0 =0.1
+dx0 =0.02
 #Resolution for the n=1 image [M]
-dx1 =0.1
+dx1 =0.02
 #Resolution for the n=2 image [M]
-dx2 =0.1
+dx2 =0.02
 
 # Projection angle for the radon transformation
 
@@ -108,7 +108,9 @@ taucorr=12.0
 tauxcorr=5.0
 seed=662003
 
-
+#path = r"C:\Users\danyp\OneDrive\Escritorio\CosasPater\UNAL\TrabajoGradoAlejandro\Results\\"
+#path_lb = path + r"LensignBands\\"
+#path_rt = path + r"RayTracing\\"
 path = r'/projects/bekt/drojaspaternina/Results/'
 path_lb = path + r"LensingBands/"
 path_rt = path + r"RayTracing/"
@@ -132,7 +134,7 @@ i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 
 #Smooth profile
 #Setting this value to 1 is a very conservative way to smooth the last bit of the file. 
-smoothradon=1
+####smoothradon=1
 
 #speed_p=1.0
 #cutoff_p=1000.0
@@ -159,7 +161,7 @@ npointsS=100
 nthreads=1 ##
 
 # Useful for disk visualizations or when studying truncated disks.
-imag_cut=0
+imag_cut=1
 # Cutoff radius   
 r_cutoff=20.25 
 
@@ -195,7 +197,7 @@ unitfact=1/(muas_to_rad*1e9)
 #path = '/home/alejo/Desktop/SALTUS/'
 
 #If the code is run several times
-production=1
+##production=1
 
 # Create a directory for the results
 isExist = os.path.exists(path)

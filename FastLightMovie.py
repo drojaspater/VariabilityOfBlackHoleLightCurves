@@ -3,7 +3,7 @@ from params import *
 
 print("Computing a single image \n")
 
-fnbands=path_lb+"LensingBands_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
+fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
 print("Reading file: ",fnbands)
 
@@ -23,7 +23,7 @@ N2=int(h5f["N2"][0])
 
 h5f.close()
 
-fnbands=path_rt+"Rays_a%s_i%s_dt%s.h5"%(spin_case,i_case,dt)
+fnbands=path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
 print("Reading file: ",fnbands)
 
