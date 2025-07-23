@@ -3,6 +3,7 @@ from params import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 def similarity_by_ssim(img1, img2):
     score, _ = ssim(img1, img2, full=True)
     return score
