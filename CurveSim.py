@@ -51,7 +51,7 @@ def CurveSim(dtau):
     df["Frame"] = rango
     
     # Guardar el DataFrame como archivo CSV
-    df.to_csv(path + 'ssim.csv', index=False)
+    df.to_csv(path + f'ssim{dtau}.csv', index=False)
     return print(f"Tienes la curva de {dtau}")
 
 CurveSim(13)
