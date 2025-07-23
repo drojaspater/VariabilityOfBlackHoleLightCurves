@@ -1,6 +1,7 @@
 from skimage.metrics import structural_similarity as ssim
 from params import *
 from aart_func import *
+import numpy as pd
 
 def similarity_by_ssim(img1, img2):
     # Asegúrate de especificar el rango de datos (data_range)
