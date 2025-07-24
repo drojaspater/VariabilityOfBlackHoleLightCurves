@@ -89,7 +89,7 @@ VMax=np.max(Is0+Is1+Is2)
 fig, ax = plt.subplots(figsize=[5,5],dpi=400)
 
 #You can select different snapshots by changing the slicing 
-ax.imshow(np.log(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:]),vmax=VMax,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
+ax.imshow(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:],vmax=VMax*1.2,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
 
 
 ax.set_facecolor('xkcd:black')
@@ -106,7 +106,7 @@ VMax=np.max(I0+I1+I2)
 fig, ax = plt.subplots(figsize=[5,5],dpi=400)
 
 #You can select different snapshots by changing the slicing 
-ax.imshow(np.log(I0[13,:,:] + I1[13,:,:] + I2[13,:,:]),vmax=VMax,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
+ax.imshow(I0[13,:,:] + I1[13,:,:] + I2[13,:,:],vmax=VMax*1.2,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
 
 
 ax.set_facecolor('xkcd:black')
