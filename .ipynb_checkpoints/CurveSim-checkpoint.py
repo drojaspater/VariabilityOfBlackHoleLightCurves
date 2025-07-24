@@ -119,7 +119,7 @@ plt.savefig(path + "FastLight13frame.png")
 ################### Importación Curvas de luz #################
 dt_str = f"{dt:.2f}"
 df_name = path_lc + 'LightCurve_datas_dt%s_a%s_i%s_%s.csv'%(dt_str,spin_case,i_case,i_fname[:-3])
-ruta_lc = path_lc + r"LightCurve_inoisy_n0.4_i0.94_ft2500_snap2048.h5"
+ruta_lc = path_lc + r"inoisy_n0.4_i0.94_ft2500_snap2048.h5"
 
 lc_inoisy = pd.read_csv(ruta_lc)
 lc_aart =  pd.read_csv(df_name)
