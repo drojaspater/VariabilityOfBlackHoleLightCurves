@@ -89,7 +89,7 @@ VMax=np.max(Is0+Is1+Is2)
 fig, ax = plt.subplots(figsize=[5,5],dpi=400)
 
 #You can select different snapshots by changing the slicing 
-ax.imshow(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:],vmax=VMax,origin="lower",cmap="plasma",extent=[-lim0,lim0,-lim0,lim0])
+ax.imshow(np.log(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:]),vmax=VMax,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
 
 
 ax.set_facecolor('xkcd:black')
@@ -106,7 +106,7 @@ VMax=np.max(I0+I1+I2)
 fig, ax = plt.subplots(figsize=[5,5],dpi=400)
 
 #You can select different snapshots by changing the slicing 
-ax.imshow(I0[13,:,:] + I1[13,:,:] + I2[13,:,:],vmax=VMax,origin="lower",cmap="plasma",extent=[-lim0,lim0,-lim0,lim0])
+ax.imshow(np.log(I0[13,:,:] + I1[13,:,:] + I2[13,:,:]),vmax=VMax,origin="lower",cmap="afmhot",extent=[-lim0,lim0,-lim0,lim0])
 
 
 ax.set_facecolor('xkcd:black')
@@ -131,9 +131,19 @@ LightCurve_sl = lc_aart["SlowLight"].to_numpy()
 LightCurve_fl = lc_aart["FastLight"].to_numpy()
 Time_aart     = lc_aart["Time"].to_numpy()
 
-LightCurve_inoisy = (LightCurve_inoisy-np.mean(LightCurve_inoisy))/np.std(LightCurve_inoisy)
-LightCurve_sl = (LightCurve_sl-np.mean(LightCurve_sl))/np.std(LightCurve_sl)
-LightCurve_fl = (LightCurve_fl-np.mean(LightCurve_fl))/np.std(LightCurve_fl)
+def FluxFactor(fluxes):
+    maxflux = np.max(fluxes)
+    minflux = np.min(fluxes)
+    avgflux = np.mean(fluxes)
+    stdflux = np.std(fluxes)
+
+    target_flux = 0.6
+    fluxfactor = target_flux/avgflux
+    return fluxes*fluxfactor
+    
+LightCurve_inoisy = FluxFactor(LightCurve_inoisy)
+LightCurve_sl     = FluxFactor(LightCurve_sl)
+LightCurve_fl     = FluxFactor(LightCurve_fl)
 
 FracDif = (LightCurve_sl-LightCurve_fl)/LightCurve_sl
 ########### Imagen TOTAL ##########
@@ -158,7 +168,7 @@ ax_top_left.set_title(r"inoisy")
 # Plot 2: Top Center (Slow-Light)
 VMAX = np.max(Is0 + Is1 + Is2)
 ax_top_center = fig.add_axes([0.33, 0.65, 0.33, 0.3])  # Customize location and size
-ax_top_center.imshow(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:], vmax=VMAX, origin="lower", cmap="plasma", extent=[-lim0, lim0, -lim0, lim0])
+ax_top_center.imshow(np.log(Is0[13,:,:] + Is1[13,:,:] + Is2[13,:,:]), vmax=VMAX, origin="lower", cmap="afmhot", extent=[-lim0, lim0, -lim0, lim0])
 ax_top_center.set_xlim(-10, 10)
 ax_top_center.set_ylim(-10, 10)
 ax_top_center.set_facecolor('xkcd:black')
@@ -169,7 +179,7 @@ ax_top_center.set_title(r"Slow-Light")
 # Plot 3: Top Right (Fast-Light)
 VMax = np.max(I0 + I1 + I2)
 ax_top_right = fig.add_axes([0.66, 0.65, 0.33, 0.3])  # Customize location and size
-ax_top_right.imshow(I0[13,:,:] + I1[13,:,:] + I2[13,:,:], vmax=VMax, origin="lower", cmap="plasma", extent=[-lim0, lim0, -lim0, lim0])
+ax_top_right.imshow(np.log(I0[13,:,:] + I1[13,:,:] + I2[13,:,:]), vmax=VMax, origin="lower", cmap="afmhot", extent=[-lim0, lim0, -lim0, lim0])
 ax_top_right.set_xlim(-10, 10)
 ax_top_right.set_ylim(-10, 10)
 ax_top_right.set_facecolor('xkcd:black')
