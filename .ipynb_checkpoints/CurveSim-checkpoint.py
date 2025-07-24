@@ -3,7 +3,7 @@ from params import *
 from aart_func import *
 import pandas as pd
 import matplotlib.pyplot as plt
-plt.rcParams['text.usetex'] = True
+#plt.rcParams['text.usetex'] = True
 
 def similarity_by_ssim(img1, img2):
     # Asegúrate de especificar el rango de datos (data_range)
@@ -152,7 +152,7 @@ ax_top_left.set_xlim(-10, 10)
 ax_top_left.set_ylim(-10, 10)
 ax_top_left.set_xlabel(f"$X$ $(M)$")
 ax_top_left.set_ylabel(f"$Y$ $(M)$")
-ax_top_left.set_title(r"\texttt{Inoisy}")
+ax_top_left.set_title(r"inoisy")
 
 # Plot 2: Top Center (Slow-Light)
 VMAX = np.max(Is0 + Is1 + Is2)
@@ -177,9 +177,9 @@ ax_top_right.set_ylabel(r"$\beta$"+" "+"(M)")
 ax_top_right.set_title(r"Fast-Light")
 
 # Plot 4: Normalized Light Curve (Center)
-ax_lc.plot(Time_aart, LightCurve_fl , label='Inoisy + aart in fast-light', color='#0072B2')
-ax_lc.plot(Time_aart, LightCurve_sl, label='Inoisy + aart in slow-light', color='#E69F00')
-ax_lc.plot(Time_inoisy, LightCurve_inoisy, linestyle="--", label='Inoisy', color='#009E73')
+ax_lc.plot(Time_aart, LightCurve_fl , label='inoisy + aart in fast-light', color='#0072B2')
+ax_lc.plot(Time_aart, LightCurve_sl, label='inoisy + aart in slow-light', color='#E69F00')
+ax_lc.plot(Time_inoisy, LightCurve_inoisy, linestyle="--", label='inoisy', color='#009E73')
 ax_lc.set_xlabel(r"$T$"+" "+"(M)")
 ax_lc.set_ylabel(r"Normalized Light Curve")
 ax_lc.set_xlim(0, 1000)
@@ -195,4 +195,4 @@ x_diff.set_xlim(0, 1000)
 x_diff.set_ylim(-np.nanmax(FracDif)-0.01, np.nanmax(FracDif)+0.01)
 x_diff.grid(linestyle="--", alpha=0.2)
 
-plt.show()
+plt.savefig(path + "TotalFigure13frame.png")
