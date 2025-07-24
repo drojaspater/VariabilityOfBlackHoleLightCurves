@@ -7,7 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1             
-#SBATCH --mem=64G                     
+#SBATCH --mem=128G                     
 #SBATCH --constraint="scratch"
 #SBATCH --account=bekt-delta-cpu      
 
@@ -16,4 +16,4 @@ source /u/drojaspaternina/anaconda3/bin/activate
 conda activate Entorno_aart           
 
 echo "El trabajo empieza en $(hostname)"
-srun python CurveSim.py             
+srun python LightCurve.py             
