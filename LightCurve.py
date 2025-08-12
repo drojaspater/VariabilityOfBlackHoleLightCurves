@@ -51,7 +51,7 @@ h5f.close()
 
 # Importation of the fast-light movie
 #fimages= path_fl + "FastLight_Images_noise%s_i%s_a%s_%s.h5"%(noise,i_case,spin_case,i_fname[:-3])
-fimages= path_fl + "proof_FastLight_Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
+fimages= path_fl + "FastLight_Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
 I0=h5f['bghts0'][:]
@@ -88,7 +88,7 @@ df = pd.DataFrame({
     'FastLight': LightCurve_FastLight,
     'Time': Time})
 
-df_name = path_lc + 'LightCurve_datas_dx%s_a%s_i%s_%s.csv'%(dx0,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'proof_LightCurve_datas_dx%s_a%s_i%s_%s.csv'%(dx0,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({
