@@ -171,7 +171,7 @@ def mp_worker(tsnap):
 def main():
     p = get_context("spawn").Pool(nthreads)
     I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
-    filename=path_sl+"Images_dx%s_a%s_i%s_%s.h5"%(dx,spin_case,i_case,i_fname[:-3])
+    filename=path_sl+"Images_dx%s_a%s_i%s_%s.h5"%(dx0,spin_case,i_case,i_fname[:-3])
 
     h5f = h5py.File(filename, 'w')
     h5f.create_dataset('bghts0', data=np.array(I0s))
