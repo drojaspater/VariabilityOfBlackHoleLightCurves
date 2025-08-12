@@ -24,7 +24,7 @@ betaphi=1.0
 #Anisotropy direction
 armangle=0.349
 #Noise Scale
-noise=0.6
+noise=0.2
 
 # If equal to 1, an inoisy single file will be produced     
 iplots=0
