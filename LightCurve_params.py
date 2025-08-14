@@ -1,18 +1,22 @@
 import itertools
 import subprocess
 
-Noise = [0.2,0.4,0.6]
-I_Case = [17,75]
+#Noise = [0.2,0.4,0.6]
+#I_Case = [17,75]
 
 # params map
-combinations = list(itertools.product(Noise, I_Case))
+#combinations = list(itertools.product(Noise, I_Case))
+#N_com = len(combinations)
+
+combinations = [0.08,0.1 ,0.2 ,0.4 ,0.6 ,0.8 ,1.0 ,5.0 ,10.0 ]
 N_com = len(combinations)
 
 for i in range(N_com):
-    noise  = combinations[i][0]
-    i_case = combinations[i][1]
-
-    print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
+    #noise  = combinations[i][0]
+    #i_case = combinations[i][1]
+    dx = combinations[i]
+    #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
+    print(f"Working with the parameters dx={dx}")
     str_params = rf"""
     from aart_func import *
     
@@ -22,7 +26,7 @@ for i in range(N_com):
     #BH's Spin
     spin_case=0.94
     #Observer's inclination
-    i_case={i_case}
+    i_case=17
     
     # Distance to M87 in meters
     dM=5.214795112e23  
@@ -40,7 +44,7 @@ for i in range(N_com):
     #Anisotropy direction
     armangle=0.349
     #Noise Scale
-    noise={noise}
+    noise=0.4
     
     # If equal to 1, an inoisy single file will be produced     
     iplots=0
@@ -55,11 +59,11 @@ for i in range(N_com):
     p_image=1
     limits=25
     #Resolution for the n=0 image [M]
-    dx0 =0.1
+    dx0 = {dx}
     #Resolution for the n=1 image [M]
-    dx1 =0.1
+    dx1 = {dx}
     #Resolution for the n=2 image [M]
-    dx2 =0.1
+    dx2 = {dx}
     
     # Projection angle for the radon transformation
     
@@ -246,3 +250,4 @@ for i in range(N_com):
     print("Document 'params.py' was created.")
     
     subprocess.run(["python", "LightCurve.py"]) 
+
