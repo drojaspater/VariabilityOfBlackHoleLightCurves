@@ -2,7 +2,7 @@ import itertools
 import subprocess
 
 Noise = [0.2,0.4,0.6]
-I_Case = [17,45,75]
+I_Case = [17,75]
 
 # params map
 combinations = list(itertools.product(Noise, I_Case))

@@ -24,7 +24,7 @@ betaphi=1.0
 #Anisotropy direction
 armangle=0.349
 #Noise Scale
-noise=0.2
+noise=0.4
 
 # If equal to 1, an inoisy single file will be produced     
 iplots=0
@@ -68,10 +68,11 @@ i_frame=0
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
-f_tM=2500
+f_tM= 15000
 #Number of snapshots in that range   
 snapshots_inoisy = 2048
-snapshots= snapshots_inoisy // 1
+n = 1
+snapshots= snapshots_inoisy // n
 #Parameter for change the number of snapshots
 
 dt = f_tM/snapshots 
@@ -122,7 +123,7 @@ path_lc = path + r"LightCurves/"
 path_inoisy = r'/projects/bekt/inoisy/'
 path_InoisyEnvelope = path + r'Inoisy_files/'
 
-i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
+i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
 i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 
 #i_source=fileloc+"inoisy_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
