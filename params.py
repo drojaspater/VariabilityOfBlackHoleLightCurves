@@ -101,7 +101,7 @@ sigmap=0.5
 # With an equatorial profile from inoisy
 i_spatial=1024
 i_temporal=2048
-inoisyduration=2500
+inoisyduration=15000
 i_spatialcorr=5.0
 i_spatialcorrxy=0.1
 inoisylimsgrid=30
