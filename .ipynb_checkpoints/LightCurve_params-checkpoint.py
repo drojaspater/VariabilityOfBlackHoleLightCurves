@@ -248,6 +248,5 @@ for i in range(N_com):
         f.write(str_params)
 
     print("Document 'params.py' was created.")
-    
-    subprocess.run(["python", "LightCurve.py"]) 
+    subprocess.run(["python", "LightCurve.py"])
 
