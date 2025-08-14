@@ -162,7 +162,7 @@ npointsS=100
 nthreads=1 ##
 
 # Useful for disk visualizations or when studying truncated disks.
-imag_cut=1
+imag_cut=0
 # Cutoff radius   
 r_cutoff=20.25 
 
