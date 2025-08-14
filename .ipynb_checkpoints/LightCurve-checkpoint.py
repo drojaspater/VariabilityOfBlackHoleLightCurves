@@ -1,21 +1,5 @@
 import subprocess
 import pandas as pd
-#
-#spin_case = float(sys.argv[1])
-#i_case = float(sys.argv[2])
-#dx0 = float(sys.argv[3])
-#i_fname = str(sys.argv[4])
-#
-#
-#params_doc = f"""   """
-#
-#nombre_archivo = r"'/projects/bekt/drojaspaternina/VariabilityOfBlackHoleLightCurves/params.py"
-#
-#
-## Crear y escribir el archivo
-#with open(nombre_archivo, "w", encoding="utf-8") as archivo:
-#    archivo.write(params_doc)
-
 from aart_func import *
 from params import * 
 
@@ -29,8 +13,20 @@ def LightCurve(I_0,I_1,I_2, cor = 0):
     return light_curve
 
 # Creation of the .h5 data
-subprocess.run(["python", "lensingbands.py"])
-subprocess.run(["python", "raytracing.py"])
+filename = "LensingBands_a%s_i%s_dx%s.h5" % (spin_case, i_case, dx0)
+if os.path.exists(path_lb):
+    print(f"File {filename} already exists. Skipping...")
+else:
+    print(f"File {filename} not found. Running lensingbands.py...")
+    subprocess.run(["python", "lensingbands.py"])
+
+filename = "Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+if os.path.exists(path_rt):
+    print(f"File {filename} already exists. Skipping...")
+else:
+    print(f"File {filename} not found. Running lensingbands.py...")
+    subprocess.run(["python", "raytracing.py"])
+    
 subprocess.run(["python", "iMovies.py"])
 subprocess.run(["python", "FastLightMovie.py"])
 
