@@ -86,7 +86,7 @@ df = pd.DataFrame({
     'FastLight': LightCurve_FastLight,
     'Time': Time})
 
-df_name = path_lc + 'proof_LightCurve_datas_dx%s_a%s_i%s_%s.csv'%(dx0,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'LightCurve_datas_dx%s_a%s_i%s_%s.csv'%(dx0,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({
