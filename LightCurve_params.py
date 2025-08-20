@@ -1,5 +1,6 @@
 import itertools
 import subprocess
+import textwrap
 
 #Noise = [0.2,0.4,0.6]
 #I_Case = [17,75]
@@ -17,7 +18,7 @@ for i in range(N_com):
     dx = combinations[i]
     #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
     print(f"Working with the parameters dx={dx}")
-    str_params = rf"""
+    str_params =  textwrap.dedent(rf"""
     from aart_func import *
     
     print("\nThanks for using AART")
@@ -243,7 +244,7 @@ for i in range(N_com):
     ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
     THE SOFTWARE.
     '''
-    """
+    """)
     with open("params.py", "w", encoding="utf-8") as f:
         f.write(str_params)
 
