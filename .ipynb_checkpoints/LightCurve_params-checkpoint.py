@@ -9,15 +9,15 @@ import textwrap
 #combinations = list(itertools.product(Noise, I_Case))
 #N_com = len(combinations)
 
-combinations = [0.08,0.1 ,0.2 ,0.4 ,0.6 ,0.8 ,1.0 ,5.0 ,10.0 ]
+combinations = [1,2,3,4,5]
 N_com = len(combinations)
 
 for i in range(N_com):
     #noise  = combinations[i][0]
     #i_case = combinations[i][1]
-    dx = combinations[i]
+    n = combinations[i]
     #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
-    print(f"Working with the parameters dx={dx}")
+    print(f"Working with the parameters n={n}")
     str_params =  textwrap.dedent(rf"""
     from aart_func import *
     
@@ -60,11 +60,11 @@ for i in range(N_com):
     p_image=1
     limits=25
     #Resolution for the n=0 image [M]
-    dx0 = {dx}
+    dx0 = 0.1
     #Resolution for the n=1 image [M]
-    dx1 = {dx}
+    dx1 = 0.1
     #Resolution for the n=2 image [M]
-    dx2 = {dx}
+    dx2 = 0.1
     
     # Projection angle for the radon transformation
     
@@ -92,7 +92,7 @@ for i in range(N_com):
     f_tM=15000
     #Number of snapshots in that range   
     snapshots_inoisy = 2048
-    n = 1
+    n = {n}
     snapshots= snapshots_inoisy // n
     #Parameter for change the number of snapshots
     
