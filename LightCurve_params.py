@@ -9,15 +9,16 @@ import textwrap
 #combinations = list(itertools.product(Noise, I_Case))
 #N_com = len(combinations)
 
-combinations = [1,2,3,4,5]
+Nn = [6,7,8,9]
+I_Case = [17,60]
+combinations = list(itertools.product(Nn, I_Case))
 N_com = len(combinations)
 
 for i in range(N_com):
-    #noise  = combinations[i][0]
-    #i_case = combinations[i][1]
-    n = combinations[i]
+    n  = combinations[i][0]
+    i_case = combinations[i][1]
     #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
-    print(f"Working with the parameters n={n}")
+    print(f"Working with the parameters n={n} and i_case = {i_case}")
     str_params =  textwrap.dedent(rf"""
     from aart_func import *
     
@@ -27,7 +28,7 @@ for i in range(N_com):
     #BH's Spin
     spin_case=0.94
     #Observer's inclination
-    i_case=60
+    i_case={i_case}
     
     # Distance to M87 in meters
     dM=5.214795112e23  
