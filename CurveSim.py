@@ -46,7 +46,7 @@ df.to_csv(df_name, index=False)
 
 def CurveSim(dtau):
     dframe = dtau//dt
-    rango = np.arange(0, snapshots_inois , dframe, dtype=int)
+    rango = np.arange(0, snapshots_inoisy , dframe, dtype=int)
     inoisy_dtauframe = data[dframe,:,:]
     
     lis = []
