@@ -8,7 +8,8 @@ from matplotlib.gridspec import GridSpec
 
 def similarity_by_ssim(img1, img2):
     # Asegúrate de especificar el rango de datos (data_range)
-    score, _ = ssim(img1, img2, full=True, data_range=img1.max() - img1.min())
+    #score, _ = ssim(img1, img2, full=True, data_range=img1.max() - img1.min()) #Índice de Similitud Estructural (SSIM)
+    score = np.corrcoef(img1.ravel(), img2.ravel())[0, 1]
     return score
 
 
@@ -26,8 +27,8 @@ inoisyfile.close()
 
 df_name = path_lc + 'LightCurve_datas_dx%s_%s.csv'%(dx0,i_fname[:-3])
 
-df = df = pd.DataFrame(data_lc)
-df.to_csv(df_name, index=False)
+#df = pd.DataFrame(data_lc)
+#df.to_csv(df_name, index=False)
 ########### Descargar primer frame ##################
 
 #fig, ax = plt.subplots(figsize=[5,5],dpi=400)
