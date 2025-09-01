@@ -17,7 +17,7 @@ inoisyfile = h5py.File(path_InoisyEnvelope+i_fname, 'r')
 
 
 data = np.array(inoisyfile['data/data_env'])
-
+data_lc = np.array(inoisyfile['data/lightcurve_env'])
 #Limits of the figure
 xystart = np.array(inoisyfile['params/x1start'])[0]
 
@@ -26,7 +26,7 @@ inoisyfile.close()
 
 df_name = path_lc + 'LightCurve_datas_dx%s_%s.csv'%(dx0,i_fname[:-3])
 
-df = df = pd.DataFrame(data)
+df = df = pd.DataFrame(data_lc)
 df.to_csv(df_name, index=False)
 ########### Descargar primer frame ##################
 
