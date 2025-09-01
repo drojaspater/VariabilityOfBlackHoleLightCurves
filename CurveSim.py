@@ -26,7 +26,8 @@ inoisyfile.close()
 
 df_name = path_lc + 'LightCurve_datas_dx%s_%s.csv'%(dx0,i_fname[:-3])
 
-data.to_csv(df_name, index=False)
+df = df = pd.DataFrame(data)
+df.to_csv(df_name, index=False)
 ########### Descargar primer frame ##################
 
 #fig, ax = plt.subplots(figsize=[5,5],dpi=400)
