@@ -9,8 +9,13 @@ from matplotlib.gridspec import GridSpec
 def similarity_by_ssim(img1, img2):
     # Asegúrate de especificar el rango de datos (data_range)
     #score, _ = ssim(img1, img2, full=True, data_range=img1.max() - img1.min()) #Índice de Similitud Estructural (SSIM)
-    score = np.corrcoef(img1.ravel(), img2.ravel())[0, 1]
-    return score
+    
+    #score = np.corrcoef(img1.ravel(), img2.ravel())[0, 1]
+    num = np.sum((img1 - img1.mean()) * (img2 - img2.mean()))
+    den = np.sqrt(np.sum((img1 - img1.mean())**2) * np.sum((img2 - img2.mean())**2))
+    
+    ncc = num / den #Coeficiente de correlación normalizada (NCC)
+    return ncc
 
 
 ######### Descargar Archivo inoisy ##############
