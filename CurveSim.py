@@ -35,46 +35,47 @@ df_name = path_lc + 'LightCurve_datas_dx%s_%s.csv'%(dx0,i_fname[:-3])
 #df = pd.DataFrame(data_lc)
 #df.to_csv(df_name, index=False)
 ########### Descargar primer frame ##################
-
-#fig, ax = plt.subplots(figsize=[5,5],dpi=400)
-#
-##You can select different snapshots by changing the slicing 
-#ax.imshow(np.log(data[13,:,:]),cmap="plasma",origin="lower",extent=[-xystart,xystart,-xystart,xystart])
-#
-#ax.set_facecolor('xkcd:black')
-#ax.set_xlabel(r"$X$"+" "+"(M)")
-#ax.set_ylabel(r"$Y$"+" "+"(M)")
-##plt.savefig(f'InoisySnapshot.png',dpi=400,bbox_inches='tight')
-#plt.savefig(path + "inoisy13frame.png")
+List_Im = np.arange(0,snapshots,16)
+for frame_Im in List_Im:
+    fig, ax = plt.subplots(figsize=[5,5],dpi=400)
+    
+    #You can select different snapshots by changing the slicing 
+    ax.imshow(np.log(data[frame_Im,:,:]),cmap="plasma",origin="lower",extent=[-xystart,xystart,-xystart,xystart])
+    
+    ax.set_facecolor('xkcd:black')
+    ax.set_xlabel(r"$X$"+" "+"(M)")
+    ax.set_ylabel(r"$Y$"+" "+"(M)")
+    #plt.savefig(f'InoisySnapshot.png',dpi=400,bbox_inches='tight')
+    plt.savefig(path_im + f"inoisy{frame_Im}frame.png")
 
 #### Analisis de Correlación ####
 
 
-def CurveSim(dtau):
-    dframe = int(dtau//dt)
-    rango = np.arange(0, snapshots_inoisy , dframe, dtype=int)
-    inoisy_dtauframe = data[dframe,:,:]
-    
-    lis = []
-    
-    for i in rango:
-        inoisy_iframe = data[i,:,:]
-        sim = similarity_by_ssim(inoisy_iframe,inoisy_dtauframe)
-        lis.append(sim)
-    
-    df = pd.DataFrame(lis, columns=['ssim'])
-    df["Frame"] = rango
-    
-    # Guardar el DataFrame como archivo CSV
-    df.to_csv(path + f'ssim{dtau}.csv', index=False)
-    return print(f"Tienes la curva de {dtau}")
-
-
-dtau_17 = 16
-dtau_60 = 84
-
-CurveSim(dtau_17)
-CurveSim(dtau_60)
+#def CurveSim(dtau):
+#    dframe = int(dtau//dt)
+#    rango = np.arange(0, snapshots_inoisy , dframe, dtype=int)
+#    inoisy_dtauframe = data[dframe,:,:]
+#    
+#    lis = []
+#    
+#    for i in rango:
+#        inoisy_iframe = data[i,:,:]
+#        sim = similarity_by_ssim(inoisy_iframe,inoisy_dtauframe)
+#        lis.append(sim)
+#    
+#    df = pd.DataFrame(lis, columns=['ssim'])
+#    df["Frame"] = rango
+#    
+#    # Guardar el DataFrame como archivo CSV
+#    df.to_csv(path + f'ssim{dtau}.csv', index=False)
+#    return print(f"Tienes la curva de {dtau}")
+#
+#
+#dtau_17 = 16
+#dtau_60 = 84
+#
+#CurveSim(dtau_17)
+#CurveSim(dtau_60)
 
 ############### Obtención de imagines par el modelo ###############
 
@@ -114,7 +115,7 @@ CurveSim(dtau_60)
 #ax.set_ylim(-10,10)
 #plt.savefig(path + "SlowLight13frame.png")
 #
-############ Descarga imagen Flow-Light ###########
+############ Descarga imagen Slow-Light ###########
 #lim0 = 30
 #VMax=np.max(I0+I1+I2)
 #

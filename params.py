@@ -118,6 +118,7 @@ path_rt = path + r"RayTracing/"
 path_fl = path + r"FastLight/"
 path_sl = path + r"SlowLight/"
 path_lc = path + r"LightCurves/"
+path_im = path + r"Images/"
 
 
 path_inoisy = r'/projects/bekt/inoisy/'
