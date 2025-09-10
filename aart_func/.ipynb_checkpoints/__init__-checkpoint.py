@@ -66,7 +66,7 @@ from aart_func.misc import *
 from aart_func.ellipi_f import *
 
 #Lensing Bands functions
-#import aart_func.lb_f as lb
+import aart_func.lb_f as lb
 
 #Raytracing
 import aart_func.raytracing_f as rt
