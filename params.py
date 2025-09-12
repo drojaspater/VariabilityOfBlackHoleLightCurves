@@ -70,12 +70,13 @@ i_tM=0
 #Makes sense when is less than the inoisy temporal length 
 f_tM= 15000
 #Number of snapshots in that range   
+snapshots= 2048
 snapshots_inoisy = 2048
 n = 1
-snapshots= snapshots_inoisy // n
+snapshots_source = snapshots_inoisy // n
 #Parameter for change the number of snapshots
 
-dt = f_tM/snapshots 
+dt = f_tM/snapshots_source
 
 isco = rms(spin_case)
 horizon = 1+np.sqrt(1-spin_case**2)

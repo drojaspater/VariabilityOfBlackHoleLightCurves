@@ -66,7 +66,7 @@ data=np.flip(data,axis=(2))
 
 
 def LowerDimension(df):
-    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots, dtype=int)
+    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots_source, dtype=int)
 
     data_N = np.zeros((len(selected_indices),data.shape[1],data.shape[2]))
     

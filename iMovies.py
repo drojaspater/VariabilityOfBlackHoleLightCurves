@@ -64,7 +64,7 @@ data=np.concatenate((data,data[0,:,:][np.newaxis,:,:]),axis=0)
 
 
 def LowerDimension(df):
-    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots, dtype=int)
+    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots_source, dtype=int)
 
     data_N = np.zeros((len(selected_indices),data.shape[1],data.shape[2]))
     for i in range(len(selected_indices)):

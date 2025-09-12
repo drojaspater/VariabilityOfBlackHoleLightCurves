@@ -9,16 +9,18 @@ import textwrap
 #combinations = list(itertools.product(Noise, I_Case))
 #N_com = len(combinations)
 
-Nn = [6,7,8,9]
+Nn = [1,2,3,4,5,6,7,8,9]
 I_Case = [17,60]
-combinations = list(itertools.product(Nn, I_Case))
+Noise = [0.4,0.6] 
+combinations = list(itertools.product(Nn, I_Case,Noise))
 N_com = len(combinations)
 
 for i in range(N_com):
     n  = combinations[i][0]
     i_case = combinations[i][1]
+    noise = combinations[i][2]
     #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
-    print(f"Working with the parameters n={n} and i_case = {i_case}")
+    print(f"Working with the parameters n={n}, i_case = {i_case} and noise = {noise}")
     str_params =  textwrap.dedent(rf"""
     from aart_func import *
     
@@ -46,7 +48,7 @@ for i in range(N_com):
     #Anisotropy direction
     armangle=0.349
     #Noise Scale
-    noise=0.4
+    noise={noise}
     
     # If equal to 1, an inoisy single file will be produced     
     iplots=0
@@ -92,12 +94,14 @@ for i in range(N_com):
     #Makes sense when is less than the inoisy temporal length 
     f_tM=15000
     #Number of snapshots in that range   
+    snapshots= 2048
     snapshots_inoisy = 2048
     n = {n}
-    snapshots= snapshots_inoisy // n
+    snapshots_source = snapshots_inoisy // n
     #Parameter for change the number of snapshots
-    
-    dt = f_tM/snapshots 
+
+    dt = f_tM/snapshots_source
+
     
     isco = rms(spin_case)
     horizon = 1+np.sqrt(1-spin_case**2)
