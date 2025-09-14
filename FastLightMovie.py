@@ -1,7 +1,7 @@
 from aart_func import *
 from params import * 
 
-print("Computing a single image \n")
+print("Computing the fast-light Movie")
 
 fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 

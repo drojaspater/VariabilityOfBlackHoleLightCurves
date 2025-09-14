@@ -1,7 +1,7 @@
 from aart_func import *
 from params import * 
 
-print("Computing a single image \n")
+print("Computing the fast-light Movie")
 
 fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
@@ -66,7 +66,7 @@ data=np.flip(data,axis=(2))
 
 
 def LowerDimension(df):
-    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots_source, dtype=int)
+    selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
 
     data_N = np.zeros((len(selected_indices),data.shape[1],data.shape[2]))
     
