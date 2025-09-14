@@ -11,8 +11,8 @@ import textwrap
 
 Nn = [1,2,3,4,5,6,7,8,9]
 I_Case = [17,60]
-Noise = [0.4,0.6] 
-combinations = list(itertools.product(Nn, I_Case,Noise))
+Noise_2 = [0.4,0.6] 
+combinations = list(itertools.product(Nn, I_Case,Noise_2))
 
 for i in range(len(combinations)):
     n  = combinations[i][0]
