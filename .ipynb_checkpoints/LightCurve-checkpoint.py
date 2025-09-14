@@ -26,7 +26,7 @@ filepath = os.path.join(path_rt, filename)
 if os.path.exists(filepath):
     print(f"File {filename} already exists. Skipping...")
 else:
-    print(f"File {filename} not found. Running lensingbands.py...")
+    print(f"File {filename} not found. Running raytracing.py...")
     subprocess.run(["python", "raytracing.py"])
     
 subprocess.run(["python", "iMovies.py"])
@@ -61,7 +61,7 @@ h5f.close()
 LightCurve_inoisy    = data_lc
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
-Time = np.linspace(i_tM,f_tM,snapshots_inoisy)
+Time = np.linspace(i_tM,f_tM,snapshots)
 
 ##################################Change Emission Rate##################################
 ## You can delate this section and nothing happen, this is only for the variation on the
@@ -69,7 +69,7 @@ Time = np.linspace(i_tM,f_tM,snapshots_inoisy)
 
 
 def LowerDimension(df):
-    selected_indices = np.linspace(0, snapshots_inoisy-1, snapshots, dtype=int)
+    selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
 
     data_N = np.zeros(len(selected_indices))
     for i in range(len(selected_indices)):
@@ -78,7 +78,7 @@ def LowerDimension(df):
         
     return data_N
 
-Time  = LowerDimension(Time)
+Time_dinoisy  = LowerDimension(Time)
 ########################################################################################
 
 df = pd.DataFrame({
