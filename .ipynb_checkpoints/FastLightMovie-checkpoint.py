@@ -126,25 +126,26 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 
 maxintensity=np.nanmax(data)
 
-interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
-
 def MovieWorker(tsnap):
-    def spatial_interpolator(x_coords, y_coords):
-        points = np.column_stack([
-            np.full(len(x_coords), tsnap),
-            x_coords, 
-            y_coords
-        ])
-        return interpolated3_R(points)
+    # 1) Interpolación temporal sobre el eje 0
+    interpolated3_R = interp1d(
+        times, data, axis=0, kind='linear',
+        bounds_error=False, fill_value=0.0, assume_sorted=True
+    )                   # devuelve (nx, ny) para un escalar
+    data_2d = interpolated3_R(tsnap)
 
-    
-    i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0, spatial_interpolator,thetao)
-    i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1, spatial_interpolator,thetao)
-    i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2, spatial_interpolator,thetao)
+    # 2) Interpolación espacial bilineal en (x1, x2)
+    interpolated2_R = RegularGridInterpolator(
+        (x1, x2), data_2d,
+        method='linear', bounds_error=False, fill_value=0.0
+    )
 
-    i_I0 = (i_bghts0).reshape(N0,N0).T
-    i_I1 = (i_bghts1).reshape(N1,N1).T
-    i_I2 = (i_bghts2).reshape(N2,N2).T
+    # 3) Síntesis con el mismo interpolador espacial
+    i_bghts0 = obsint.fast_light(supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, interpolated2_R, thetao)
+    i_bghts1 = obsint.fast_light(supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, interpolated2_R, thetao)
+    i_bghts2 = obsint.fast_light(supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, interpolated2_R, thetao)
+
+    return i_bghts0, i_bghts1, i_bghts2
     
 
 I0s = []
