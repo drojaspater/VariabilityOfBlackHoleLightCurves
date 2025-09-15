@@ -16,4 +16,4 @@ source /u/drojaspaternina/anaconda3/bin/activate
 conda activate Entorno_aart           
 
 echo "El trabajo empieza en $(hostname)"
-srun python LightCurve_params.py             
+srun python FastLightMovie.py             
