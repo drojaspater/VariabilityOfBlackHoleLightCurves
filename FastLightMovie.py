@@ -135,20 +135,20 @@ def MovieWorker(tsnap):
     )                   # devuelve (nx, ny) para un escalar
     data_2d = interpolated3_R(tsnap)
 
-    # 2) Interpolación espacial bilineal en (x1, x2)
+    
     interpolated2_R = RegularGridInterpolator(
         (x1, x2), data_2d,
         method='linear', bounds_error=False, fill_value=0.0
     )
 
-    # 3) Síntesis con el mismo interpolador espacial
+    
     i_bghts0 = obsint.fast_light(supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, interpolated2_R, thetao)
     i_bghts1 = obsint.fast_light(supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, interpolated2_R, thetao)
     i_bghts2 = obsint.fast_light(supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, interpolated2_R, thetao)
 
     i_I0 = (i_bghts0).reshape(N0,N0).T
-	i_I1 = (i_bghts1).reshape(N1,N1).T
-	i_I2 = (i_bghts2).reshape(N2,N2).T
+    i_I1 = (i_bghts1).reshape(N1,N1).T  
+    i_I2 = (i_bghts2).reshape(N2,N2).T  
 
     print("Calculating an image at time t=%s (M)"%np.round(tsnap*dt,5))
     return(i_I0,i_I1,i_I2)
