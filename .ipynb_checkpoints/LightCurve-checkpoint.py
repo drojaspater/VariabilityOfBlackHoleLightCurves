@@ -68,17 +68,17 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ## Emission rate
 
 
-def LowerDimension(df):
-    selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
-
-    data_N = np.zeros(len(selected_indices))
-    for i in range(len(selected_indices)):
-        j = selected_indices[i]
-        data_N[i] =  df[j]
-        
-    return data_N
-
-Time_dinoisy  = LowerDimension(Time)
+#def LowerDimension(df):
+#    selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
+#
+#    data_N = np.zeros(len(selected_indices))
+#    for i in range(len(selected_indices)):
+#        j = selected_indices[i]
+#        data_N[i] =  df[j]
+#        
+#    return data_N
+#
+#Time_dinoisy  = LowerDimension(Time)
 ########################################################################################
 
 df = pd.DataFrame({

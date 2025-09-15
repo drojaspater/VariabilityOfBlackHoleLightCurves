@@ -126,12 +126,21 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 
 maxintensity=np.nanmax(data)
 
-def MovieWorker(tsnap):
-	interpolated2_R=RegularGridInterpolator((x1,x2), data[tsnap,:,:],fill_value=0,bounds_error=False,method='linear')
+interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
 
-	i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0, interpolated2_R,thetao)
-	i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1, interpolated2_R,thetao)
-	i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2, interpolated2_R,thetao)
+def MovieWorker(tsnap):
+    # Definir interpolador espacial que usa el 3D global
+    def spatial_interpolator(x_coords, y_coords):
+        points = np.column_stack([
+            np.full(len(x_coords), tsnap),
+            x_coords, 
+            y_coords
+        ])
+        return interpolated3_R(points)
+
+	i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0, spatial_interpolator,thetao)
+	i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1, spatial_interpolator,thetao)
+	i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2, spatial_interpolator,thetao)
 
 	i_I0 = (i_bghts0).reshape(N0,N0).T
 	i_I1 = (i_bghts1).reshape(N1,N1).T
