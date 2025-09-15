@@ -19,6 +19,6 @@ echo "El trabajo empieza en $(hostname)"
 echo "Fecha: $(date)"
 echo "Memoria total: $(grep MemTotal /proc/meminfo)"
 
-python -u LightCurve_params.py
+python -u iMovies.py
 
 echo "El trabajo terminó en $(date)"       

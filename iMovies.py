@@ -146,6 +146,7 @@ def mp_worker(tsnap):
 	print("Calculating an image at time t=%s (M)"%np.round(tsnap,5))
 	return(i_I0,i_I1,i_I2)
 
+
 #p = get_context("fork").Pool(nthreads) #using n threads
 #    
 #if __name__ == '__main__':
