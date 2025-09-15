@@ -40,7 +40,7 @@ from matplotlib import path as paths
 
 #Radon transformation
 from skimage.transform import radon
-from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import interp1d, RegularGridInterpolator
 from scipy.optimize import curve_fit
 from scipy.fft import fft, fftfreq, fftshift
 from scipy import interpolate, optimize 

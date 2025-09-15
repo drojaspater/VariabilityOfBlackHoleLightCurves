@@ -1,6 +1,5 @@
 from aart_func import *
 from params import * 
-from scipy.interpolate import interp1d
 
 print("Computing the fast-light Movie")
 
@@ -127,21 +126,16 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 
 maxintensity=np.nanmax(data)
 
-def MovieWorker(tsnap):
-    # 1) Interpolación temporal sobre el eje 0
-    interpolated3_R = interp1d(
-        times, data, axis=0, kind='linear',
-        bounds_error=False, fill_value=0.0, assume_sorted=True
-    )                   # devuelve (nx, ny) para un escalar
-    data_2d = interpolated3_R(tsnap)
+interpolated3_R = interp1d(times, data, axis=0, kind='linear',bounds_error=False, fill_value=0.0, assume_sorted=True) 
 
+def MovieWorker(tsnap):               
+    data_2d = interpolated3_R(tsnap)
     
     interpolated2_R = RegularGridInterpolator(
         (x1, x2), data_2d,
         method='linear', bounds_error=False, fill_value=0.0
     )
 
-    
     i_bghts0 = obsint.fast_light(supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, interpolated2_R, thetao)
     i_bghts1 = obsint.fast_light(supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, interpolated2_R, thetao)
     i_bghts2 = obsint.fast_light(supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, interpolated2_R, thetao)
