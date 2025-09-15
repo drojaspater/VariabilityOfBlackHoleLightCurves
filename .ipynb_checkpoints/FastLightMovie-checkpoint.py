@@ -1,5 +1,6 @@
 from aart_func import *
 from params import * 
+from scipy.interpolate import interp1d
 
 print("Computing the fast-light Movie")
 
