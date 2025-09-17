@@ -19,6 +19,6 @@ echo "El trabajo empieza en $(hostname)"
 echo "Fecha: $(date)"
 echo "Memoria total: $(grep MemTotal /proc/meminfo)"
 
-python -u iMovies.py
+python -u FastLightMovie.py
 
 echo "El trabajo terminó en $(date)"       
