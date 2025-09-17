@@ -204,7 +204,7 @@ def bright_radial(grid,mask,redshift_sign,a,rs,isco,thetao):
 
 #calculate the observed brightness for an arbitrary profile, passed in as the interpolation object
 #but ignoring the time delay due to lensing
-def fast_light(grid,mask,redshift_sign,a,isco,rs,th,interpolation,thetao):
+def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     """
     Calculate the black hole image ignoring the time delay due to lensing or geometric effect
     (Eq. 116 P1)
@@ -215,6 +215,7 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,interpolation,thetao):
     :param isco: radius of the inner-most stable circular orbit
     :param rs: source radius
     :param th: source angle, polar coordinate
+    :param ts: time of emission at the source (for fast-light need to be and scalar value)
     :param interpolation: 2 dimensional brightness function of the source, interpolation object
     :param thetao: observer inclination
 
@@ -231,8 +232,8 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,interpolation,thetao):
     x_aux=rs*np.cos(th)
     y_aux=rs*np.sin(th)
  
-    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([x_aux[rs>=isco],y_aux[rs>=isco]]).T)
-    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([x_aux[rs<isco],y_aux[rs<isco]]).T)
+    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts,x_aux[rs>=isco],y_aux[rs>=isco]]).T)
+    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts,x_aux[rs<isco],y_aux[rs<isco]]).T)
     
     r_p = 1+np.sqrt(1-a**2)
     brightness[rs<=r_p] = 0
