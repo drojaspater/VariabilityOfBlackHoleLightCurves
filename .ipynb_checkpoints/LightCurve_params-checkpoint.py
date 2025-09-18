@@ -93,13 +93,14 @@ for i in range(len(combinations)):
     #Makes sense when is less than the inoisy temporal length 
     f_tM=15000
     #Number of snapshots in that range   
-    snapshots= 2048
+    snapshots= 1024
     snapshots_inoisy = 2048
     n = {n}
     snapshots_source = snapshots_inoisy // n
     #Parameter for change the number of snapshots
 
     dt = f_tM/snapshots_source
+    dt_movie = f_tM/snapshots
 
     
     isco = rms(spin_case)
