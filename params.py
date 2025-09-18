@@ -70,7 +70,7 @@ i_tM=0
 #Makes sense when is less than the inoisy temporal length 
 f_tM= 15000
 #Number of snapshots in that range   
-snapshots= 2048
+snapshots= 1024
 snapshots_inoisy = 2048
 n = 1
 snapshots_source = snapshots_inoisy // n
