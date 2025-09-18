@@ -77,7 +77,7 @@ snapshots_source = snapshots_inoisy // n
 #Parameter for change the number of snapshots
 
 dt = f_tM/snapshots_source
-dt_movie = f_tM/snapshot
+dt_movie = f_tM/snapshots
 
 isco = rms(spin_case)
 horizon = 1+np.sqrt(1-spin_case**2)
