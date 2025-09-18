@@ -231,7 +231,10 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 
     x_aux=rs*np.cos(th)
     y_aux=rs*np.sin(th)
- 
+    
+    K =np.count_nonzero(rs>=isco)
+    ts_list = tcol = np.full(K, t0)
+    
     brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts,x_aux[rs>=isco],y_aux[rs>=isco]]).T)
     brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts,x_aux[rs<isco],y_aux[rs<isco]]).T)
     
