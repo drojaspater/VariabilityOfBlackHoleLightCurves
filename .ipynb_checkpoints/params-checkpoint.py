@@ -24,7 +24,7 @@ betaphi=1.0
 #Anisotropy direction
 armangle=0.349
 #Noise Scale
-noise=0.6
+noise=0.4
 
 # If equal to 1, an inoisy single file will be produced     
 iplots=0
@@ -126,9 +126,11 @@ path_im = path + r"Images/"
 path_inoisy = r'/projects/bekt/inoisy/'
 path_InoisyEnvelope = path + r'Inoisy_files/'
 
-i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
-i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
+#i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
+#i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 
+i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_10.0_137.0_670867.0.h5"
+i_fname = r"inoisy10_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 #i_source=fileloc+"inoisy_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
 #i_fname="/Users/alejo/Data/n1/inoisy_env_0.4_512_256_50_1000_5.00_0.10_0.9400_0.90_0.90_1.00_0.785.h5"
 #i_fname=fileloc+"inoisy_env_"+str(noise)+"_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
