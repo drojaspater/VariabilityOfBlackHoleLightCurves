@@ -9,8 +9,8 @@ import textwrap
 #combinations = list(itertools.product(Noise, I_Case))
 #N_com = len(combinations)
 
-Nn = [1,5,9]
-I_Case = [17]
+Nn = [1,2,3,4,5,6,7,8]
+I_Case = [17,60]
 Noise_2 = [0.4] 
 combinations = list(itertools.product(Nn, I_Case,Noise_2))
 
