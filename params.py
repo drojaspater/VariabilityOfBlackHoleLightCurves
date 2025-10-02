@@ -68,7 +68,7 @@ i_frame=0
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
-f_tM= 15000
+f_tM= 2500
 #Number of snapshots in that range   
 snapshots= 1024
 snapshots_inoisy = 2048
@@ -103,7 +103,7 @@ sigmap=0.5
 # With an equatorial profile from inoisy
 i_spatial=1024
 i_temporal=2048
-inoisyduration=15000
+inoisyduration=2500
 i_spatialcorr=5.0
 i_spatialcorrxy=0.1
 inoisylimsgrid=30
@@ -129,8 +129,8 @@ path_InoisyEnvelope = path + r'Inoisy_files/'
 #i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
 #i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 
-i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_20.0_137.0_148123.0.h5"
-i_fname = r"inoisy20_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
+i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
+i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 #i_source=fileloc+"inoisy_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
 #i_fname="/Users/alejo/Data/n1/inoisy_env_0.4_512_256_50_1000_5.00_0.10_0.9400_0.90_0.90_1.00_0.785.h5"
 #i_fname=fileloc+"inoisy_env_"+str(noise)+"_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
