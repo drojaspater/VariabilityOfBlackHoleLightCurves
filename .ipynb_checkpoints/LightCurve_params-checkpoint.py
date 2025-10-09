@@ -175,7 +175,7 @@ for i in range(len(combinations)):
     #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h"
     #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h"
 
-    i_source = {i_source}
+    i_source = r"{i_source}"
     i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,f_tM,i_spatial,snapshots_inoisy)
     
     
