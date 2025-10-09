@@ -141,8 +141,8 @@ path_InoisyEnvelope = path + r'Inoisy_files/'
 #i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_67897.0.h5"
 
 ##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 10000
-#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h"
-#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h"
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5"
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h5"
 
 i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,f_tM,i_spatial,snapshots_inoisy)
 

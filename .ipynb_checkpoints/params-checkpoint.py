@@ -126,17 +126,26 @@ path_im = path + r"Images/"
 path_inoisy = r'/projects/bekt/inoisy/'
 path_InoisyEnvelope = path + r'Inoisy_files/'
 
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 15000
 #i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
-#i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
 
-i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
-i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
-#i_source=fileloc+"inoisy_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
-#i_fname="/Users/alejo/Data/n1/inoisy_env_0.4_512_256_50_1000_5.00_0.10_0.9400_0.90_0.90_1.00_0.785.h5"
-#i_fname=fileloc+"inoisy_env_"+str(noise)+"_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
-#AART Submission
-#i_fname="/Users/alejo/Desktop/inoisy_env_0.4_2048_512_50_1000_5.00_0.10_0.9400_0.95_0.95_0.95.h5"
-#i_fname="/Users/alejo/Documents/Princeton/Research/Fluctuations/Midplane/midplane.h5"
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 2500
+#i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
+
+##i_spatial=512, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
+#i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
+#i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_54287.0.h5"
+
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 2500
+#i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5"
+#i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_67897.0.h5"
+
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 10000
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5"
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h5"
+
+i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,f_tM,i_spatial,snapshots_inoisy)
+
 
 #Smooth profile
 #Setting this value to 1 is a very conservative way to smooth the last bit of the file. 
