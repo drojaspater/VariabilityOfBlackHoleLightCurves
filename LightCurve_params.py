@@ -3,30 +3,24 @@ import subprocess
 import textwrap
 
 
-#Nn = [1,2,3,4,5,6,7,8]
-#I_Case = [17]
-#Noise = [0.4] 
-#combinations = list(itertools.product(Name, I_Case,Noise))
+Nn = [1,8]
+I_Case = [17]
+Noise = [0.4] 
+combinations_name = [
+    (r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000),
+    (r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5", 1024, 4096, 2500),
+    (r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5", 1024, 4096, 10000)]
 
-combinations = [#(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5",512,8192,5000),
-#(r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5",1024,4096,2500),
-(r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5",1024,4096,10000)]
+combinations = list(itertools.product(combinations_name, Nn, I_Case, Noise))
 
-
-for i in range(len(combinations)):
-    #n  = combinations[i][0]
-    i_source = combinations[i][0]
+for combo in combinations:
+    (i_source, i_spatial, i_temporal, inoisyduration), n, i_case, noise = combo
     
-    i_spatial= combinations[i][1]
-    
-    i_temporal = combinations[i][2]
     snapshots_inoisy = i_temporal
-    
-    inoisyduration = combinations[i][3]
     f_tM = inoisyduration
     
-    #print(f"Working with the parameters n={n}, i_case = {i_case} and noise = {noise}")
-    print(f"Working with the parameters i_source={i_source}, i_spatial = {i_spatial}, i_temporal={i_temporal} and inoisyduration = {inoisyduration}")
+    print(f"Working with the parameters n={n}, i_case={i_case}, noise={noise}")
+    print(f"Working with the parameters i_source={i_source}, \n i_spatial={i_spatial}, i_temporal={i_temporal}, inoisyduration={inoisyduration}")
     
     str_params =  textwrap.dedent(rf"""
     from aart_func import *
@@ -37,7 +31,7 @@ for i in range(len(combinations)):
     #BH's Spin
     spin_case=0.94
     #Observer's inclination
-    i_case=17
+    i_case= {i_case}
     
     # Distance to M87 in meters
     dM=5.214795112e23  
@@ -55,7 +49,7 @@ for i in range(len(combinations)):
     #Anisotropy direction
     armangle=0.349
     #Noise Scale
-    noise=0.4
+    noise={noise}
     
     # If equal to 1, an inoisy single file will be produced     
     iplots=0
@@ -103,7 +97,7 @@ for i in range(len(combinations)):
     #Number of snapshots in that range   
     snapshots= {snapshots_inoisy//2}
     snapshots_inoisy = {snapshots_inoisy}
-    n = 1
+    n = {n}
     snapshots_source = snapshots_inoisy // n
     #Parameter for change the number of snapshots
     
@@ -275,5 +269,5 @@ for i in range(len(combinations)):
         f.write(str_params)
 
     print("Document 'params.py' was created.")
-    subprocess.run(["python", "modinoisy.py"])
+    subprocess.run(["python", "LightCurve.py"])
 
