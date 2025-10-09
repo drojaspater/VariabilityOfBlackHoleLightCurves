@@ -2,34 +2,42 @@ import itertools
 import subprocess
 import textwrap
 
-#Noise = [0.2,0.4,0.6]
-#I_Case = [17,75]
 
-# params map
-#combinations = list(itertools.product(Noise, I_Case))
-#N_com = len(combinations)
+#Nn = [1,2,3,4,5,6,7,8]
+#I_Case = [17]
+#Noise = [0.4] 
+#combinations = list(itertools.product(Name, I_Case,Noise))
 
-Nn = [1,2,3,4,5,6,7,8]
-I_Case = [17,60]
-Noise_2 = [0.4] 
-combinations = list(itertools.product(Nn, I_Case,Noise_2))
+combinations = [(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5",512,8192,5000),
+(r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5",1024,4096,2500),
+(r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h",1024,4096,10000)]
+
 
 for i in range(len(combinations)):
-    n  = combinations[i][0]
-    i_case = combinations[i][1]
-    noise = combinations[i][2]
-    #print("Working with the parameters noise = %s , i_case = %s"%(noise,i_case))
-    print(f"Working with the parameters n={n}, i_case = {i_case} and noise = {noise}")
+    #n  = combinations[i][0]
+    i_source = combinations[i][0]
+    
+    i_spatial= combinations[i][1]
+    
+    i_temporal = combinations[i][2]
+    snapshots_inoisy = i_temporal
+    
+    inoisyduration = combinations[i][3]
+    f_tM = inoisyduration
+    
+    #print(f"Working with the parameters n={n}, i_case = {i_case} and noise = {noise}")
+    print(f"Working with the parameters i_source={i_source}, i_spatial = {i_spatial}, i_temporal={i_temporal} and inoisyduration = {inoisyduration}")
+    
     str_params =  textwrap.dedent(rf"""
     from aart_func import *
-    
+
     print("\nThanks for using AART")
     print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
     
     #BH's Spin
     spin_case=0.94
     #Observer's inclination
-    i_case={i_case}
+    i_case=17
     
     # Distance to M87 in meters
     dM=5.214795112e23  
@@ -47,7 +55,7 @@ for i in range(len(combinations)):
     #Anisotropy direction
     armangle=0.349
     #Noise Scale
-    noise={noise}
+    noise=0.4
     
     # If equal to 1, an inoisy single file will be produced     
     iplots=0
@@ -62,11 +70,11 @@ for i in range(len(combinations)):
     p_image=1
     limits=25
     #Resolution for the n=0 image [M]
-    dx0 = 0.1
+    dx0 =0.1
     #Resolution for the n=1 image [M]
-    dx1 = 0.1
+    dx1 =0.1
     #Resolution for the n=2 image [M]
-    dx2 = 0.1
+    dx2 =0.1
     
     # Projection angle for the radon transformation
     
@@ -91,17 +99,16 @@ for i in range(len(combinations)):
     # Initial and final times in units of M
     i_tM=0  
     #Makes sense when is less than the inoisy temporal length 
-    f_tM=2500
+    f_tM= {f_tM}
     #Number of snapshots in that range   
-    snapshots= 1024
-    snapshots_inoisy = 2048
-    n = {n}
+    snapshots= {snapshots_inoisy//2}
+    snapshots_inoisy = {snapshots_inoisy}
+    n = 1
     snapshots_source = snapshots_inoisy // n
     #Parameter for change the number of snapshots
-
+    
     dt = f_tM/snapshots_source
     dt_movie = f_tM/snapshots
-
     
     isco = rms(spin_case)
     horizon = 1+np.sqrt(1-spin_case**2)
@@ -125,15 +132,15 @@ for i in range(len(combinations)):
     #sigmap=1.0
     
     # With an equatorial profile from inoisy
-    i_spatial=1024
-    i_temporal=2048
-    inoisyduration=2500
+    i_spatial= {i_spatial}
+    i_temporal= {i_temporal}
+    inoisyduration= {inoisyduration}
     i_spatialcorr=5.0
     i_spatialcorrxy=0.1
     inoisylimsgrid=30
     taucorr=12.0
     tauxcorr=5.0
-    seed=662003
+    #seed=662003
     
     #path = r"C:\Users\danyp\OneDrive\Escritorio\CosasPater\UNAL\TrabajoGradoAlejandro\Results\\"
     #path_lb = path + r"LensignBands\\"
@@ -144,23 +151,33 @@ for i in range(len(combinations)):
     path_fl = path + r"FastLight/"
     path_sl = path + r"SlowLight/"
     path_lc = path + r"LightCurves/"
+    path_im = path + r"Images/"
     
     
     path_inoisy = r'/projects/bekt/inoisy/'
     path_InoisyEnvelope = path + r'Inoisy_files/'
     
+    ##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 15000
     #i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
-    #i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
-
-    i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
-    i_fname = r"inoisy_n%s_i%s_ft%s_snap2048.h5"%(noise,spin_case,f_tM)
     
-    #i_source=fileloc+"inoisy_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
-    #i_fname="/Users/alejo/Data/n1/inoisy_env_0.4_512_256_50_1000_5.00_0.10_0.9400_0.90_0.90_1.00_0.785.h5"
-    #i_fname=fileloc+"inoisy_env_"+str(noise)+"_"+str(i_spatial)+"_"+str(i_temporal)+"_"+str(int(inoisylimsgrid))+"_"+str(int(f_tM))+"_"+format(i_spatialcorr, '.2f')+"_"+format(i_spatialcorrxy, '.2f')+"_"+format(spin_case, '.4f')+"_"+format(sub_kep, '.2f')+"_"+format(betar, '.2f')+"_"+format(betaphi, '.2f')+"_"+format(armangle, '.3f')+".h5"
-    #AART Submission
-    #i_fname="/Users/alejo/Desktop/inoisy_env_0.4_2048_512_50_1000_5.00_0.10_0.9400_0.95_0.95_0.95.h5"
-    #i_fname="/Users/alejo/Documents/Princeton/Research/Fluctuations/Midplane/midplane.h5"
+    ##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 2500
+    #i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
+    
+    ##i_spatial=512, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
+    #i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
+    #i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_54287.0.h5"
+    
+    ##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 2500
+    #i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5"
+    #i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_67897.0.h5"
+    
+    ##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 10000
+    #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h"
+    #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h"
+
+    i_source = {i_source}
+    i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,f_tM,i_spatial,snapshots_inoisy)
+    
     
     #Smooth profile
     #Setting this value to 1 is a very conservative way to smooth the last bit of the file. 
@@ -258,5 +275,5 @@ for i in range(len(combinations)):
         f.write(str_params)
 
     print("Document 'params.py' was created.")
-    subprocess.run(["python", "LightCurve.py"])
+    subprocess.run(["python", "modinoisy.py"])
 
