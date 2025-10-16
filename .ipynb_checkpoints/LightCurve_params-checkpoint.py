@@ -3,13 +3,13 @@ import subprocess
 import textwrap
 
 
-Nn = [1,8]
+Nn = [2,4,8]
 I_Case = [17]
 Noise = [0.4] 
 combinations_name = [
-    (r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000),
-    (r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5", 1024, 4096, 2500),
-    (r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5", 1024, 4096, 10000)]
+    (r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000)]
+    #(r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5", 1024, 4096, 2500),
+    #(r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5", 1024, 4096, 10000)]
 
 combinations = list(itertools.product(combinations_name, Nn, I_Case, Noise))
 
@@ -95,9 +95,9 @@ for combo in combinations:
     #Makes sense when is less than the inoisy temporal length 
     f_tM= {f_tM}
     #Number of snapshots in that range   
-    snapshots= {snapshots_inoisy//2}
+    snapshots= {snapshots_inoisy//n}
     snapshots_inoisy = {snapshots_inoisy}
-    n = {n}
+    n = 1
     snapshots_source = snapshots_inoisy // n
     #Parameter for change the number of snapshots
     
