@@ -64,14 +64,14 @@ disk="dynamical"
 
 # inoisy frame for single images
 i_frame=0 
-
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
-f_tM= 2500
+f_tM= 5000
 #Number of snapshots in that range   
-snapshots= 1024
-snapshots_inoisy = 2048
+snapshots_inoisy = 8192
+snapshots= snapshots_inoisy/2
+
 n = 1
 snapshots_source = snapshots_inoisy // n
 #Parameter for change the number of snapshots
@@ -102,8 +102,8 @@ sigmap=0.5
 
 # With an equatorial profile from inoisy
 i_spatial=1024
-i_temporal=2048
-inoisyduration=2500
+i_temporal=8192
+inoisyduration=5000
 i_spatialcorr=5.0
 i_spatialcorrxy=0.1
 inoisylimsgrid=30
@@ -144,7 +144,11 @@ path_InoisyEnvelope = path + r'Inoisy_files/'
 #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5"
 #i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h5"
 
-i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,inoisyduration,i_spatial,snapshots_inoisy)
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
+i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_1834.0.h5"
+#i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_4381.0.h5"
+
+i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,inoisyduration,i_spatial,snapshots_source)
 
 
 #Smooth profile
