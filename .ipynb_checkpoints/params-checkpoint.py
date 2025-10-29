@@ -148,7 +148,7 @@ path_InoisyEnvelope = path + r'Inoisy_files/'
 i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_1834.0.h5"
 #i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_4381.0.h5"
 
-i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,inoisyduration,i_spatial,snapshots_source)
+i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,inoisyduration,i_spatial,snapshots_inoisy)
 
 
 #Smooth profile

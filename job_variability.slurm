@@ -7,7 +7,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1             
-#SBATCH --mem=128G                     
+#SBATCH --mem=240G                     
 #SBATCH --account=bekt-delta-cpu      
 #SBATCH --constraint="scratch"        
 
@@ -19,6 +19,6 @@ echo "El trabajo empieza en $(hostname)"
 echo "Fecha: $(date)"
 echo "Memoria total: $(grep MemTotal /proc/meminfo)"
 
-python -u modinoisy.py
+python -u LightCurve_params.py
 
 echo "El trabajo terminó en $(date)"       
