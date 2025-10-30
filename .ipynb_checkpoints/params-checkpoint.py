@@ -6,7 +6,7 @@ print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 #BH's Spin
 spin_case=0.94
 #Observer's inclination
-i_case=60
+i_case=17
 
 # Distance to M87 in meters
 dM=5.214795112e23  
@@ -67,7 +67,7 @@ i_frame=0
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
-f_tM= 5000
+f_tM= 3500
 #Number of snapshots in that range   
 snapshots_inoisy = 8192
 snapshots= snapshots_inoisy/2

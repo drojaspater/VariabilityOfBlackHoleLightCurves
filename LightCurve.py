@@ -29,8 +29,8 @@ else:
     print(f"File {filename} not found. Running raytracing.py...")
     subprocess.run(["python", "raytracing.py"])
     
-subprocess.run(["python", "iMovies.py"])
-subprocess.run(["python", "FastLightMovie.py"])
+#subprocess.run(["python", "iMovies.py"])
+#subprocess.run(["python", "FastLightMovie.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
