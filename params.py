@@ -70,7 +70,7 @@ i_tM=0
 f_tM= 3500
 #Number of snapshots in that range   
 snapshots_inoisy = 8192
-snapshots= snapshots_inoisy/2
+snapshots= snapshots_inoisy//2
 
 n = 1
 snapshots_source = snapshots_inoisy // n
