@@ -94,7 +94,7 @@ for combo in combinations:
     # Initial and final times in units of M
     i_tM=0  
     #Makes sense when is less than the inoisy temporal length 
-    f_tM= 3500
+    f_tM= 5000
     #Number of snapshots in that range   
     snapshots= {snapshots_inoisy//n}
     snapshots_inoisy = {snapshots_inoisy}
