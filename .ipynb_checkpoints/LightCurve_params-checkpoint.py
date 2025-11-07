@@ -3,24 +3,20 @@ import subprocess
 import textwrap
 
 
-Nn = [1]
-DX = [0.1 ,0.4 ,0.6 ,0.8 ,1 , 3 ,5  ,10]
-I_Case = [17]
-combinations_name = [ 
-    #(r"inoisy_1024_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_1834.0.h5", 1024, 8192, 5000)]
-    (r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000,0.94), (r"inoisy_512_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_54287.0.h5", 512, 8192, 5000,0.5)]
-    #(r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5", 1024, 4096, 2500),
-    #(r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5", 1024, 4096, 10000)]
+Nn = [2,4,6,8,10]
+I_Case = [17,60]
+combinations_name = [(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000,0.94)]
+                     #(r"inoisy_512_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_54287.0.h5", 512, 8192, 5000,0.5)]
 
-combinations = list(itertools.product(combinations_name, Nn, I_Case, DX))
+combinations = list(itertools.product(combinations_name, Nn, I_Case))
 
 for combo in combinations:
-    (i_source, i_spatial, i_temporal, inoisyduration,spin_case), n, i_case, dx = combo
+    (i_source, i_spatial, i_temporal, inoisyduration,spin_case), n, i_case = combo
     
     snapshots_inoisy = i_temporal
     f_tM = inoisyduration
     
-    print(f"Working with the parameters n={n}, i_case={i_case}, noise={noise}")
+    print(f"Working with the parameters n={n}, i_case={i_case}, spin_case={spin_case}")
     print(f"Working with the parameters i_source={i_source}, \n i_spatial={i_spatial}, i_temporal={i_temporal}, inoisyduration={inoisyduration}, spin_case = {spin_case}")
     
     str_params =  textwrap.dedent(rf"""
@@ -50,7 +46,7 @@ for combo in combinations:
     #Anisotropy direction
     armangle=0.349
     #Noise Scale
-    noise={noise}
+    noise= 0.4
     
     # If equal to 1, an inoisy single file will be produced     
     iplots=0
@@ -65,11 +61,11 @@ for combo in combinations:
     p_image=1
     limits=25
     #Resolution for the n=0 image [M]
-    dx0 = {dx}
+    dx0 = 0.1
     #Resolution for the n=1 image [M]
-    dx1 = {dx}
+    dx1 = 0.1
     #Resolution for the n=2 image [M]
-    dx2 = {dx}
+    dx2 = 0.1
     
     # Projection angle for the radon transformation
     
@@ -94,7 +90,7 @@ for combo in combinations:
     # Initial and final times in units of M
     i_tM=0  
     #Makes sense when is less than the inoisy temporal length 
-    f_tM= 5000
+    f_tM= {f_tM}
     #Number of snapshots in that range   
     snapshots= {snapshots_inoisy//2}
     snapshots_inoisy = {snapshots_inoisy}
