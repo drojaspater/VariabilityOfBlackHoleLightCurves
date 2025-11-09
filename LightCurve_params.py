@@ -20,6 +20,7 @@ for combo in combinations:
     print(f"Working with the parameters i_source={i_source}, \n i_spatial={i_spatial}, i_temporal={i_temporal}, inoisyduration={inoisyduration}, spin_case = {spin_case}")
 
     if i_case in [17, 30, 60] and spin_case == 0.94:
+        print(The light curve already exists)
         continue
     else:
         str_params =  textwrap.dedent(rf"""
