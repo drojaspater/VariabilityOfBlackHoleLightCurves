@@ -4,13 +4,24 @@ from aart_func import *
 from params import * 
 
 # LightCurve Function generation
-def LightCurve(I_0,I_1,I_2, cor = 0):
-    light_curve = np.zeros(snapshots)
-    I_total = I_0 + I_1 + I_2
-    for tsnap in range(snapshots):
-        light_curve[tsnap] = np.sum(I_0[tsnap,:,:]) + np.sum(I_1[tsnap,:,:]) + np.sum(I_2[tsnap,:,:])
-   
+
+#def LightCurve(I_0,I_1 = np.zeros(snapshots),I_2 = np.zeros(snapshots), cor = 0):
+#    light_curve = np.zeros(snapshots)
+#    for tsnap in range(snapshots):
+#        light_curve[tsnap] = np.sum(I_0[tsnap,:,:]) + np.sum(I_1[tsnap,:,:]) + np.sum(I_2[tsnap,:,:])
+#   
+#    return light_curve
+
+def LightCurve(I_0, I_1=None, I_2=None, cor=0):
+    I_total = I_0.copy()
+    if I_1 is not None:
+        I_total += I_1
+    if I_2 is not None:
+        I_total += I_2
+    light_curve = np.sum(I_total, axis=(1, 2))
     return light_curve
+
+        
 
 # Creation of the .h5 data
 filename = "LensingBands_a%s_i%s_dx%s.h5"%(spin_case, i_case, dx0)
@@ -59,6 +70,10 @@ h5f.close()
 
 # Light Curve Generation 
 LightCurve_inoisy    = data_lc
+LightCurve_SlowLight_0 = LightCurve(Is0)
+LightCurve_FastLight_0 = LightCurve(I0)
+LightCurve_SlowLight_1 = LightCurve(Is0,Is1)
+LightCurve_FastLight_1 = LightCurve(I0,I1)
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
 Time = np.linspace(i_tM,f_tM,snapshots)
@@ -82,11 +97,15 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ########################################################################################
 
 df = pd.DataFrame({
-    'SlowLight': LightCurve_SlowLight,
-    'FastLight': LightCurve_FastLight,
+    'SlowLight n=0': LightCurve_SlowLight_0,
+    'FastLight n=0': LightCurve_FastLight_0,
+    'SlowLight n=0 + n=1': LightCurve_SlowLight_1,
+    'FastLight n=0 + n=1': LightCurve_FastLight_1,
+    'SlowLight Total': LightCurve_SlowLight,
+    'FastLight Total': LightCurve_FastLight,
     'Time': Time})
 
-df_name = path_lc + 'LightCurve_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'LightCurve_PhotonRings_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({
