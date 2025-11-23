@@ -3,7 +3,7 @@ import subprocess
 import textwrap
 
 
-Nn = [1]
+Nn = [1,2,8,32,64]
 I_Case = [17,60]
 combinations_name = [(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000,0.94)]
 
@@ -95,10 +95,10 @@ for combo in combinations:
         #Makes sense when is less than the inoisy temporal length 
         f_tM= {f_tM}
         #Number of snapshots in that range   
-        snapshots= {snapshots_inoisy//2}
+        snapshots= {snapshots_inoisy//n}
         snapshots_inoisy = {snapshots_inoisy}
         n = {n}
-        snapshots_source = snapshots_inoisy // n
+        snapshots_source = snapshots_inoisy 
         #Parameter for change the number of snapshots
         
         dt = f_tM/snapshots_source
