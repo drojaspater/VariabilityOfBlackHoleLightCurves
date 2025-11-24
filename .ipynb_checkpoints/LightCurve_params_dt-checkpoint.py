@@ -18,7 +18,7 @@ for combo in combinations:
     print(f"Working with the parameters n={n}, i_case={i_case}, spin_case={spin_case}")
     print(f"Working with the parameters i_source={i_source}, \n i_spatial={i_spatial}, i_temporal={i_temporal}, inoisyduration={inoisyduration}, spin_case = {spin_case}")
 
-    if n in [2,8]:
+    if n in [0]:
         print("The light curve already exists")
         continue
     else:

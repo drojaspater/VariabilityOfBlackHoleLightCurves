@@ -70,10 +70,10 @@ h5f.close()
 
 # Light Curve Generation 
 LightCurve_inoisy    = data_lc
-LightCurve_SlowLight_0 = LightCurve(Is0)
-LightCurve_FastLight_0 = LightCurve(I0)
-LightCurve_SlowLight_1 = LightCurve(Is0,Is1)
-LightCurve_FastLight_1 = LightCurve(I0,I1)
+#LightCurve_SlowLight_0 = LightCurve(Is0)
+#LightCurve_FastLight_0 = LightCurve(I0)
+#LightCurve_SlowLight_1 = LightCurve(Is0,Is1)
+#LightCurve_FastLight_1 = LightCurve(I0,I1)
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
 Time = np.linspace(i_tM,f_tM,snapshots)
@@ -97,15 +97,15 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ########################################################################################
 
 df = pd.DataFrame({
-    'SlowLight n=0': LightCurve_SlowLight_0,
-    'FastLight n=0': LightCurve_FastLight_0,
-    'SlowLight n=0 + n=1': LightCurve_SlowLight_1,
-    'FastLight n=0 + n=1': LightCurve_FastLight_1,
-    'SlowLight Total': LightCurve_SlowLight,
-    'FastLight Total': LightCurve_FastLight,
+#    'SlowLight n=0': LightCurve_SlowLight_0,
+#    'FastLight n=0': LightCurve_FastLight_0,
+#    'SlowLight n=0 + n=1': LightCurve_SlowLight_1,
+#    'FastLight n=0 + n=1': LightCurve_FastLight_1,
+    'SlowLight': LightCurve_SlowLight,
+    'FastLight': LightCurve_FastLight,
     'Time': Time})
 
-df_name = path_lc + 'LightCurve_PhotonRings_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'LightCurve_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({
