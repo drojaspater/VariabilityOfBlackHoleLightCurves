@@ -4,7 +4,7 @@ print("\nThanks for using AART")
 print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
 #BH's Spin
-spin_case=0.5
+spin_case=0.94
 #Observer's inclination
 i_case=17
 
@@ -134,7 +134,7 @@ path_InoisyEnvelope = path + r'Inoisy_files/'
 
 ##i_spatial=512, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
 #i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
-i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_54287.0.h5"
+i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
 
 ##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 2500
 #i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5"
