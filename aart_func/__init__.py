@@ -19,6 +19,10 @@ import imageio.v2 as imageio
 import argparse
 import fileinput
 
+#Time Reduction
+from collections import Counter
+import heapq
+
 #For the analytical calculations
 from numpy.lib.scimath import sqrt,  log
 from numpy import arccos, arcsin,sin, cos

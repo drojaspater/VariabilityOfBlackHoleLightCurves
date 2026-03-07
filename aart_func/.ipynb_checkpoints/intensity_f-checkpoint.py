@@ -201,6 +201,80 @@ def bright_radial(grid,mask,redshift_sign,a,rs,isco,thetao):
     
     return(I)
 
+#########################################################################################
+#########################################################################################
+##########################################################################################
+def freedman_diaconis_bins(data):
+    """
+    Calculates the optimal number of bins using the Freedman-Diaconis rule.
+    Ideal for approximately normal distributions with anomalies.
+    
+    Parameters:
+    -----------
+    data : array-like
+        Input data array
+        
+    Returns:
+    --------
+    n_bins : int
+        Optimal number of bins for histogram
+    """
+    data = np.asarray(data)
+    n = len(data)
+    
+    # Data range
+    data_range = data.max() - data.min()
+    
+    # Interquartile range (robust to outliers)
+    Q1 = np.percentile(data, 25)
+    Q3 = np.percentile(data, 75)
+    IQR = Q3 - Q1
+    # Avoid division by zero
+    if IQR == 0:
+        IQR = data_range / 10  # fallback
+    
+    # Bin width according to Freedman-Diaconis
+    bin_width = 2 * IQR * n ** (-1/3)
+    
+    # Number of bins
+    n_bins = max(1, int(np.ceil(data_range / bin_width)))
+    
+    # Upper limit to avoid excessive bins
+    n_bins = min(n_bins, 500)
+    
+    return n_bins
+
+def Mask_FilterTime(T,Bins=0):
+    """Filter of the time data woth higher frequency and Create a mask for 
+    data falling into the selected containers
+    bins: number of bins of the distribution
+    T: Time coordinate data"""
+    Bins = freedman_diaconis_bins(T)
+    # frequency per bin 
+    hist, bins = np.histogram(T, bins=Bins) 
+    
+    # Here we search for the most frequent bin
+    n_top_bins = max(1, int(len(hist) * 0.02)) #Numbers of bins with the higher frequency
+    #Wee choose the index of bins with the higher frequency
+    top_bins_indices = heapq.nlargest(n_top_bins, range(len(hist)), key=lambda i: hist[i])
+    
+    mascara = np.zeros(len(T), dtype=bool)
+    
+    for idx in  top_bins_indices:
+        bin_min = bins[idx]
+        bin_max = bins[idx + 1]
+        
+        #Create the mask
+        if idx == len(bins) - 2:  
+            mascara |= (T >= bin_min) & (T <= bin_max)
+        else:
+            mascara |= (T >= bin_min) & (T < bin_max)
+            
+    return mascara
+
+#########################################################################################
+#########################################################################################
+#########################################################################################
 
 #calculate the observed brightness for an arbitrary profile, passed in as the interpolation object
 #but ignoring the time delay due to lensing
@@ -225,6 +299,8 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     beta = grid[:,1][mask]
     rs = rs[mask]
     th = th[mask]
+
+    
     lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
     brightness = np.zeros(rs.shape[0])
     redshift_sign = redshift_sign[mask]
@@ -273,9 +349,22 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     rs = rs[mask]
     th = th[mask]
     ts = ts[mask]
+
+    ######################################
+    MaskTime = Mask_FilterTime(ts)
+    alpha = grid[:,0][MaskTime]
+    beta = grid[:,1][MaskTime]
+    rs = rs[MaskTime]
+    th = th[MaskTime]
+    ts = ts[MaskTime]
+    #######################################
+    
     lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
     brightness = np.zeros(rs.shape[0])
     redshift_sign = redshift_sign[mask]
+    #######################################
+    redshift_sign = redshift_sign[MaskTime]
+    #######################################
     
     x_aux=rs*np.cos(th)
     y_aux=rs*np.sin(th)
