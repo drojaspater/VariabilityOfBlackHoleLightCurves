@@ -352,15 +352,15 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 
     ################# without nan #####################
     valid_mask = np.isfinite(ts)
-    alpha = grid[:,0][valid_mask]
-    beta = grid[:,1][valid_mask]
+    alpha = alpha[valid_mask]
+    beta = beta[valid_mask]
     rs = rs[valid_mask]
     th = th[valid_mask]
     ts = ts[valid_mask]
     ################# Time Filter #####################
     MaskTime = Mask_FilterTime(ts)
-    alpha = grid[:,0][MaskTime]
-    beta = grid[:,1][MaskTime]
+    alpha = alpha[MaskTime]
+    beta = beta[MaskTime]
     rs = rs[MaskTime]
     th = th[MaskTime]
     ts = ts[MaskTime]
