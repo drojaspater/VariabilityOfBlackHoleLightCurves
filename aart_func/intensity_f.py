@@ -370,6 +370,7 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     brightness = np.zeros(rs.shape[0])
     redshift_sign = redshift_sign[mask]
     #######################################
+    redshift_sign = redshift_sign[valid_mask]
     redshift_sign = redshift_sign[MaskTime]
     #######################################
     
