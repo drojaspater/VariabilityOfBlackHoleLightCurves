@@ -326,6 +326,48 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     return(I)
 
 #calculate the observed brightness for an arbitrary, evolving profile, passed in as the interpolation object
+
+#def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
+#    """
+#    Calculate the black hole image including the time delay due to lensing and geometric effect
+#    (Eq. 50 P1)
+#
+#    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
+#    :param mask: mask out the lensing band, see lb_f.py for detail
+#    :param redshift_sign: sign of the redshift
+#    :param a: black hole spin
+#    :param isco: radius of the inner-most stable circular orbit
+#    :param rs: source radius
+#    :param th: source angle, polar coordinate
+#    :param ts: time of emission at the source
+#    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
+#    :param thetao: observer inclination
+#
+#    :return: image of a lensed equitorial source with only radial dependence. 
+#    """
+#    alpha = grid[:,0][mask]
+#    beta = grid[:,1][mask]
+#    rs = rs[mask]
+#    th = th[mask]
+#    ts = ts[mask]
+#    
+#    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
+#    brightness = np.zeros(rs.shape[0])
+#    redshift_sign = redshift_sign[mask]
+#    
+#    x_aux=rs*np.cos(th)
+#    y_aux=rs*np.sin(th)
+#
+#    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[rs>=isco],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
+#    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[rs<isco],x_aux[rs<isco],y_aux[rs<isco]]).T)
+#
+#    r_p = 1+np.sqrt(1-a**2)
+#    brightness[rs<=r_p] = 0
+#    
+#    I = np.zeros(mask.shape) 
+#    I[mask] = brightness
+#    return(I)
+    
 def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect
@@ -344,35 +386,24 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
-    alpha = grid[:,0][mask]
-    beta = grid[:,1][mask]
-    rs = rs[mask]
-    th = th[mask]
-    ts = ts[mask]
-
-    ################# without nan #####################
-    valid_mask = np.isfinite(ts)
-    alpha = alpha[valid_mask]
-    beta = beta[valid_mask]
-    rs = rs[valid_mask]
-    th = th[valid_mask]
-    ts = ts[valid_mask]
-    ################# Time Filter #####################
-    MaskTime = Mask_FilterTime(ts)
-    alpha = alpha[MaskTime]
-    beta = beta[MaskTime]
-    rs = rs[MaskTime]
-    th = th[MaskTime]
-    ts = ts[MaskTime]
     #######################################
+    # without nan 
+    valid_mask = np.isfinite(ts)
+    # Time Filter 
+    MaskTime = Mask_FilterTime(ts)
+    # combined mask
+    combined_mask = valid_mask & time_mask & mask
+    #######################################
+    
+    alpha = grid[:,0][combined_mask]
+    beta = grid[:,1][mcombined_mask]
+    rs = rs[combined_mask]
+    th = th[combined_mask]
+    ts = ts[combined_mask]
     
     lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
     brightness = np.zeros(rs.shape[0])
-    redshift_sign = redshift_sign[mask]
-    #######################################
-    redshift_sign = redshift_sign[valid_mask]
-    redshift_sign = redshift_sign[MaskTime]
-    #######################################
+    redshift_sign = redshift_sign[combined_mask]
     
     x_aux=rs*np.cos(th)
     y_aux=rs*np.sin(th)
@@ -383,8 +414,8 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     r_p = 1+np.sqrt(1-a**2)
     brightness[rs<=r_p] = 0
     
-    I = np.zeros(mask.shape)
-    I[mask] = brightness
+    I = np.zeros(mask.shape) 
+    I[combined_mask] = brightness
     return(I)
 
 def br(supergrid0,mask0,N0,rs0,sign0,supergrid1,mask1,N1,rs1,sign1,supergrid2,mask2,N2,rs2,sign2):
