@@ -387,16 +387,23 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     :return: image of a lensed equitorial source with only radial dependence. 
     """
     #######################################
-    # without nan 
+    # without nan
     valid_mask = np.isfinite(ts)
-    # Time Filter 
-    MaskTime = Mask_FilterTime(ts)
-    # combined mask
-    combined_mask = valid_mask & time_mask & mask
+    
+    # time filtered 
+    ts_valid = ts[valid_mask]
+    time_mask_valid = Mask_FilterTime(ts_valid)
+    
+    # mask reconstruction
+    time_mask = np.zeros_like(ts, dtype=bool)
+    time_mask[valid_mask] = time_mask_valid
+    
+    # final mask 
+    combined_mask = mask & valid_mask & time_mask
     #######################################
     
     alpha = grid[:,0][combined_mask]
-    beta = grid[:,1][mcombined_mask]
+    beta = grid[:,1][combined_mask]
     rs = rs[combined_mask]
     th = th[combined_mask]
     ts = ts[combined_mask]
