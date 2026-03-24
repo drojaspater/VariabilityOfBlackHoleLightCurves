@@ -287,8 +287,11 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000):
               - threshold: density threshold defining the interval
     """
     data = np.asarray(data)
-    kde = gaussian_kde(data)
-    xgrid = np.linspace(data.min(), data.max(), gridsize)
+    # Filtrar valores no finitos
+    data_finite = data[np.isfinite(data)]
+    
+    kde = gaussian_kde(data_finite)
+    xgrid = np.linspace(data_finite.min(), data_finite.max(), gridsize)
     dens = kde(xgrid)
 
     dx = xgrid[1] - xgrid[0]
@@ -341,8 +344,10 @@ def mode_kde(data, gridsize=2000):
               - dens: KDE values on the grid
     """
     data = np.asarray(data)
-    xgrid = np.linspace(data.min(), data.max(), gridsize)
-    kde = gaussian_kde(data)
+    # Filtrar valores no finitos
+    data_finite = data[np.isfinite(data)]
+    xgrid = np.linspace(data_finite.min(), data_finite.max(), gridsize)
+    kde = gaussian_kde(data_finite)
     dens = kde(xgrid)
     mode_idx = np.argmax(dens)
     return xgrid[mode_idx], xgrid, dens
@@ -406,7 +411,7 @@ def periodic_interval_mask(t, left, right, period):
         return (t >= left) | (t <= right)
 
 def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s, period):
-     """
+    """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)
 

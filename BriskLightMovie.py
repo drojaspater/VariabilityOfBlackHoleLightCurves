@@ -161,12 +161,12 @@ def mp_worker(tsnap):
         xtend
     )
 
-	i_I0 = (i_bghts0).reshape(N0,N0).T
-	i_I1 = (i_bghts1).reshape(N1,N1).T
-	i_I2 = (i_bghts2).reshape(N2,N2).T
+    i_I0 = (i_bghts0).reshape(N0,N0).T
+    i_I1 = (i_bghts1).reshape(N1,N1).T
+    i_I2 = (i_bghts2).reshape(N2,N2).T
 
-	print("Calculating an image at time t=%s (M)"%np.round(tsnap,5))
-	return(i_I0,i_I1,i_I2)
+    print("Calculating an image at time t=%s (M)"%np.round(tsnap,5))
+    return(i_I0,i_I1,i_I2)
 
 
 ###Opción for Windows
