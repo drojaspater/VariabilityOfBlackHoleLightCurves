@@ -4,7 +4,7 @@ from aart_func import *
 from params import * 
 
 # Creation of the .h5 data
-filename = "LensingBands_a%s_i%s_dx%s.h5"%(spin_case, i_case, dx0)
+filename = path_lb++"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 filepath = os.path.join(path_lb, filename)
 if os.path.exists(filepath):
     print(f"File {filename} already exists. Skipping...")
@@ -12,7 +12,7 @@ else:
     print(f"File {filename} not found. Running lensingbands.py...")
     subprocess.run(["python", "lensingbands.py"])
 
-filename = "Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+filename = path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 filepath = os.path.join(path_rt, filename)
 if os.path.exists(filepath):
     print(f"File {filename} already exists. Skipping...")
@@ -116,31 +116,45 @@ t1-=fact
 t2-=fact
 
 
-print("AART starts!")
+print("Fast Light starts!")
 
-i_dt = xtend/nt
-timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
+i_dt = times[1] - times[0]
+timeconversion = i_dt*MMkg*Gc/cc**3/(3600*24)  # [days]
 
-maxintensity=np.nanmax(data)
+maxintensity = np.nanmax(data)
 
-##Tomar el porcentil para poder ver la coordenada más usual 
+# Separación entre picos
+mode0, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
+mode1, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
+mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
 
-print("Using a single inoisy frame")
-interpolated2_R0 =RegularGridInterpolator((x1,x2), data[i_frame,:,:],fill_value=0,bounds_error=False,method='linear')
-interpolated2_R1 =RegularGridInterpolator((x1,x2), data[i_frame -int(f_tM/17),:,:],fill_value=0,bounds_error=False,method='linear')
-interpolated2_R2 =RegularGridInterpolator((x1,x2), data[i_frame -int(f_tM/32),:,:],fill_value=0,bounds_error=False,method='linear')
+dt_src = times[1] - times[0]
 
-dt = f_tM/snapshots_source
+shift_01 = int(np.round((mode1 - mode0)/dt_src))
+shift_02 = int(np.round((mode2 - mode0)/dt_src))
+
+k0 = i_frame
+k1 = (k0 + shift_01) % (nt - 1)
+k2 = (k0 + shift_02) % (nt - 1)
+
+interpolated2_R0 = RegularGridInterpolator((x1,x2), data[k0,:,:], fill_value=0, bounds_error=False, method='linear')
+interpolated2_R1 = RegularGridInterpolator((x1,x2), data[k1,:,:], fill_value=0, bounds_error=False, method='linear')
+interpolated2_R2 = RegularGridInterpolator((x1,x2), data[k2,:,:], fill_value=0, bounds_error=False, method='linear')
+
+t_obs = times[i_frame]
 
 print("Computing a lensed image")
-i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0, interpolated2_R0,thetao)
-i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1, interpolated2_R1,thetao)
-i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2, interpolated2_R2,thetao)
-i_I0 = (i_bghts0).reshape(N0,N0).T
-i_I1 = (i_bghts1).reshape(N1,N1).T
-i_I2 = (i_bghts2).reshape(N2,N2).T
 
-filename=path+"Image_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
+# Hipótesis: usar SIEMPRE la geometría de n=0
+i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R0,thetao)
+i_bghts1 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R1,thetao)
+i_bghts2 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R2,thetao)
+
+i_I0 = (i_bghts0).reshape(N0,N0).T
+i_I1 = (i_bghts1).reshape(N0,N0).T
+i_I2 = (i_bghts2).reshape(N0,N0).T
+
+filename=path+"ImageFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
 h5f = h5py.File(filename, 'w')
 h5f.create_dataset('bghts0', data=i_I0)
 h5f.create_dataset('bghts1', data=i_I1)
@@ -152,14 +166,17 @@ print("Single image file ",filename," created.\n")
 
 
 print("Using all the available inoisy frames")
-interpolated3_R=RegularGridInterpolator((times,x1,x2), data,fill_value=0,bounds_error=False,method='linear')
+interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
+
 print("Computing lensed image using all inoisy frames")
-i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0+i_tM+i_frame,xtend), interpolated3_R,thetao);
-i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1+i_tM+i_frame,xtend), interpolated3_R,thetao);
-i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2+i_tM+i_frame,xtend), interpolated3_R,thetao);
+i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + t_obs, xtend), interpolated3_R,thetao)
+i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + t_obs, xtend), interpolated3_R,thetao)
+i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + t_obs, xtend), interpolated3_R,thetao)
+
 i_I0 = (i_bghts0).reshape(N0,N0).T
 i_I1 = (i_bghts1).reshape(N1,N1).T
 i_I2 = (i_bghts2).reshape(N2,N2).T
+
 filename=path+"Dynamical_Image_a_%s_i_%s.h5"%(spin_case,i_case)
 h5f = h5py.File(filename, 'w')
 h5f.create_dataset('bghts0', data=i_I0)
