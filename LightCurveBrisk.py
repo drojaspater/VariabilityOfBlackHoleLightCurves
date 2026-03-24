@@ -1,4 +1,4 @@
-import subprocess
+Briskimport subprocess
 import pandas as pd
 from aart_func import *
 from params import * 
@@ -40,8 +40,8 @@ else:
     print(f"File {filename} not found. Running raytracing.py...")
     subprocess.run(["python", "raytracing.py"])
     
-subprocess.run(["python", "BriskLightMovie.py"])
-subprocess.run(["python", "FastLightMovie.py"])
+#subprocess.run(["python", "BriskLightMovie.py"])
+#subprocess.run(["python", "FastLightMovie.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
@@ -101,15 +101,15 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ########################################################################################
 
 df = pd.DataFrame({
-    'SlowLight n=0': LightCurve_SlowLight_0,
+    'SlowLight n=0': LightCurve_BriskLight_0,
     'FastLight n=0': LightCurve_FastLight_0,
-    'SlowLight n=1': LightCurve_SlowLight_1,
+    'SlowLight n=1': LightCurve_BriskLight_1,
     'FastLight n=1': LightCurve_FastLight_1,
-    'SlowLight n=2': LightCurve_SlowLight_2,
+    'SlowLight n=2': LightCurve_BriskLight_2,
     'FastLight n=2': LightCurve_FastLight_2,
-    'SlowLight n=0 + n=1': LightCurve_SlowLight_01,
+    'SlowLight n=0 + n=1': LightCurve_BriskLight_01,
     'FastLight n=0 + n=1': LightCurve_FastLight_01,
-    'SlowLight': LightCurve_SlowLight,
+    'SlowLight': LightCurve_BriskLight,
     'FastLight': LightCurve_FastLight,
     'Time': Time})
 

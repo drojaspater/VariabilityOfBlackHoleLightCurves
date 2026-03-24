@@ -330,27 +330,7 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000):
             hi = c
 
     return best  # (mode, left, right, width = right - left, mass, threshold)
-#########################################################################################
 
-def mode_kde(data, gridsize=2000):
-    """
-    Estimate the mode of a one-dimensional sample using a Gaussian KDE.
-    :param data: One-dimensional sample of data points.
-    :param gridsize: Number of grid points used to evaluate the KDE.
-    
-    :returns: A tuple containing:
-              - mode: location of the KDE mode
-              - xgrid: evaluation grid
-              - dens: KDE values on the grid
-    """
-    data = np.asarray(data)
-    # Filtrar valores no finitos
-    data_finite = data[np.isfinite(data)]
-    xgrid = np.linspace(data_finite.min(), data_finite.max(), gridsize)
-    kde = gaussian_kde(data_finite)
-    dens = kde(xgrid)
-    mode_idx = np.argmax(dens)
-    return xgrid[mode_idx], xgrid, dens
 #########################################################################################
 #########################################################################################
 ##########################################################################################
