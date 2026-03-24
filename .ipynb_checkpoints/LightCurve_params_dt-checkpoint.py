@@ -28,7 +28,8 @@ for combo in combinations:
     
         print("\nThanks for using AART")
         print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
-        
+
+        p_brisk = 0.2
         #BH's Spin
         spin_case={spin_case}
         #Observer's inclination
@@ -145,6 +146,7 @@ for combo in combinations:
         path_rt = path + r"RayTracing/"
         path_fl = path + r"FastLight/"
         path_sl = path + r"SlowLight/"
+        path_bl = path + r"BriskLight/"
         path_lc = path + r"LightCurves/"
         path_im = path + r"Images/"
         

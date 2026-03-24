@@ -3,6 +3,7 @@ from aart_func import *
 print("\nThanks for using AART")
 print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
+p_brisk = 0.2
 #BH's Spin
 spin_case=0.94
 #Observer's inclination
@@ -63,7 +64,7 @@ inoisylims=0
 disk="dynamical"
 
 # inoisy frame for single images
-i_frame=0 
+i_frame=0
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 

@@ -30,6 +30,7 @@ from scipy.special import ellipk, ellipeinc, ellipe
 from scipy.special import ellipkinc as ellipf
 from scipy.special import ellipj
 from scipy.special import elliprj
+from scipy.stats import gaussian_kde
 from scipy.integrate import quad 
 from scipy.integrate import cumulative_trapezoid as cumtrapz
 from scipy import signal

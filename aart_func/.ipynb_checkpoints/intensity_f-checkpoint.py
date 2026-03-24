@@ -208,16 +208,10 @@ def freedman_diaconis_bins(data):
     """
     Calculates the optimal number of bins using the Freedman-Diaconis rule.
     Ideal for approximately normal distributions with anomalies.
+    :param data: array-like
+    :param n_bins: int
     
-    Parameters:
-    -----------
-    data : array-like
-        Input data array
-        
-    Returns:
-    --------
-    n_bins : int
-        Optimal number of bins for histogram
+    :return: Optimal number of bins for histogram
     """
     data = np.asarray(data)
     n = len(data)
@@ -243,9 +237,10 @@ def freedman_diaconis_bins(data):
     n_bins = min(n_bins, 500)
     
     return n_bins
-
-def Mask_FilterTime(T,Bins=0):
-    """Filter of the time data woth higher frequency and Create a mask for 
+#########################################################################################
+def Mask_FilterTime(T,porcentage):
+    """
+    Filter of the time data wth higher frequency and Create a mask for 
     data falling into the selected containers
     bins: number of bins of the distribution
     T: Time coordinate data"""
@@ -254,7 +249,7 @@ def Mask_FilterTime(T,Bins=0):
     hist, bins = np.histogram(T, bins=Bins) 
     
     # Here we search for the most frequent bin
-    n_top_bins = max(1, int(len(hist) * 0.02)) #Numbers of bins with the higher frequency
+    n_top_bins = max(1, int(len(hist) * porcentage)) #Numbers of bins with the higher frequency
     #Wee choose the index of bins with the higher frequency
     top_bins_indices = heapq.nlargest(n_top_bins, range(len(hist)), key=lambda i: hist[i])
     
@@ -271,10 +266,89 @@ def Mask_FilterTime(T,Bins=0):
             mascara |= (T >= bin_min) & (T < bin_max)
             
     return mascara
+#########################################################################################
+def modal_hdi_kde(data, p=0.68, gridsize=4000):
+    """
+    Compute a modal highest-density interval (HDI) from a kernel density estimate (KDE).
+    This function estimates the probability density of the input data using a Gaussian
+    KDE, identifies the mode as the location of maximum estimated density, and then
+    finds the connected interval around that mode that contains approximately a target
+    probability mass `p`.
+    :param data: One-dimensional sample of data points.
+    :param p: Target probability mass to be enclosed by the modal HDI. Must be between 0 and 1.
+    :param gridsize: Number of grid points used to evaluate the KDE between the minimum and maximum of the data.
+    
+    :returns: A tuple containing:
+              - mode: location of the KDE mode
+              - left: left boundary of the modal HDI
+              - right: right boundary of the modal HDI
+              - width: interval width, computed as right - left
+              - mass: approximate probability mass enclosed in the interval
+              - threshold: density threshold defining the interval
+    """
+    data = np.asarray(data)
+    kde = gaussian_kde(data)
+    xgrid = np.linspace(data.min(), data.max(), gridsize)
+    dens = kde(xgrid)
 
+    dx = xgrid[1] - xgrid[0]
+    probs = dens * dx
+    mode_idx = np.argmax(dens)
+    mode = xgrid[mode_idx]
+    
+    # Binary search over the density threshold
+    lo, hi = 0.0, dens[mode_idx]
+
+    best = None
+
+    for _ in range(60):
+        c = (lo + hi) / 2.0
+        mask = dens >= c
+
+        # Connected component containing the mode
+        if not mask[mode_idx]:
+            hi = c
+            continue
+
+        i = mode_idx
+        l = i
+        while l > 0 and mask[l - 1]:
+            l -= 1
+        r = i
+        while r < len(mask) - 1 and mask[r + 1]:
+            r += 1
+
+        mass = probs[l:r+1].sum()
+
+        if mass >= p:
+            lo = c
+            best = (mode, xgrid[l], xgrid[r], xgrid[r] - xgrid[l],  mass, c)
+        else:
+            hi = c
+
+    return best  # (mode, left, right, width = right - left, mass, threshold)
+#########################################################################################
+
+def mode_kde(data, gridsize=2000):
+    """
+    Estimate the mode of a one-dimensional sample using a Gaussian KDE.
+    :param data: One-dimensional sample of data points.
+    :param gridsize: Number of grid points used to evaluate the KDE.
+    
+    :returns: A tuple containing:
+              - mode: location of the KDE mode
+              - xgrid: evaluation grid
+              - dens: KDE values on the grid
+    """
+    data = np.asarray(data)
+    xgrid = np.linspace(data.min(), data.max(), gridsize)
+    kde = gaussian_kde(data)
+    dens = kde(xgrid)
+    mode_idx = np.argmax(dens)
+    return xgrid[mode_idx], xgrid, dens
 #########################################################################################
 #########################################################################################
-#########################################################################################
+##########################################################################################
 
 #calculate the observed brightness for an arbitrary profile, passed in as the interpolation object
 #but ignoring the time delay due to lensing
@@ -325,11 +399,92 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     I[mask] = brightness
     return(I)
 
-#calculate the observed brightness for an arbitrary, evolving profile, passed in as the interpolation object
+def periodic_interval_mask(t, left, right, period):
+    if left <= right:
+        return (t >= left) & (t <= right)
+    else:
+        return (t >= left) | (t <= right)
 
-#def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
+def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s, period):
+     """
+    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
+    (Eq. 50 P1)
+
+    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
+    :param mask: mask out the lensing band, see lb_f.py for detail
+    :param redshift_sign: sign of the redshift
+    :param a: black hole spin
+    :param isco: radius of the inner-most stable circular orbit
+    :param rs: source radius
+    :param th: source angle, polar coordinate
+    :param ts: time of emission at the source
+    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
+    :param thetao: observer inclination
+    :param left_s: left boundary of the modal HDI
+    :param right_s: right boundary of the modal HDI 
+    :param period: snapshot time (observation time)
+
+    :return: image of a lensed equitorial source with only radial dependence. 
+    """
+
+    alpha = grid[:,0][mask]
+    beta  = grid[:,1][mask]
+    rs    = rs[mask]
+    th    = th[mask]
+    ts    = ts[mask]
+
+    time_mask = periodic_interval_mask(ts, left_s, right_s, period)
+
+    cond_disk = (rs >= isco)
+    cond_gas  = (rs < isco)
+
+    interp_disk = cond_disk & time_mask
+    interp_gas  = cond_gas & time_mask
+
+    lamb, eta = rt.conserved_quantities(alpha, beta, thetao, a)
+    brightness = np.zeros(rs.shape[0])
+    redshift_sign = redshift_sign[mask]
+
+    x_aux = rs*np.cos(th)
+    y_aux = rs*np.sin(th)
+
+    if np.any(cond_disk):
+        g_factors = gDisk(rs[cond_disk], a, redshift_sign[cond_disk],
+                          lamb[cond_disk], eta[cond_disk])**gfactor
+        interp_values = np.zeros(np.sum(cond_disk))
+        if np.any(interp_disk):
+            disk_idx = np.where(cond_disk)[0]
+            interp_idx = np.where(interp_disk)[0]
+            local_mask = np.isin(disk_idx, interp_idx)
+            interp_values[local_mask] = interpolation(
+                np.vstack([ts[interp_disk], x_aux[interp_disk], y_aux[interp_disk]]).T
+            )
+        brightness[cond_disk] = g_factors * interp_values
+
+    if np.any(cond_gas):
+        g_factors = gGas(rs[cond_gas], a, redshift_sign[cond_gas],
+                         lamb[cond_gas], eta[cond_gas])**gfactor
+        interp_values = np.zeros(np.sum(cond_gas))
+        if np.any(interp_gas):
+            gas_idx = np.where(cond_gas)[0]
+            interp_idx = np.where(interp_gas)[0]
+            local_mask = np.isin(gas_idx, interp_idx)
+            interp_values[local_mask] = interpolation(
+                np.vstack([ts[interp_gas], x_aux[interp_gas], y_aux[interp_gas]]).T
+            )
+        brightness[cond_gas] = g_factors * interp_values
+
+    r_p = 1 + np.sqrt(1 - a**2)
+    brightness[rs <= r_p] = 0
+
+    I = np.zeros(mask.shape)
+    I[mask] = brightness
+    return I
+
+    
+#def brisk_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao,width,tsnap):
 #    """
-#    Calculate the black hole image including the time delay due to lensing and geometric effect
+#    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
 #    (Eq. 50 P1)
 #
 #    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
@@ -342,6 +497,8 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 #    :param ts: time of emission at the source
 #    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
 #    :param thetao: observer inclination
+#    :param width: Width of the interest time distribution and restriction of the source
+#    :param tsnap: snapshot time (observation time)
 #
 #    :return: image of a lensed equitorial source with only radial dependence. 
 #    """
@@ -350,6 +507,12 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 #    rs = rs[mask]
 #    th = th[mask]
 #    ts = ts[mask]
+#
+#    time_mask = (ts >= tsnap - width/2) & (ts <= tsnap + width/2)
+#    
+#    combined_mask1 = (rs>=isco) & time_mask
+#    combined_mask2 = (rs<isco) & time_mask
+#    
 #    
 #    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
 #    brightness = np.zeros(rs.shape[0])
@@ -358,8 +521,8 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 #    x_aux=rs*np.cos(th)
 #    y_aux=rs*np.sin(th)
 #
-#    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[rs>=isco],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
-#    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[rs<isco],x_aux[rs<isco],y_aux[rs<isco]]).T)
+#    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[combined_mask1],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
+#    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[combined_mask2],x_aux[rs<isco],y_aux[rs<isco]]).T)
 #
 #    r_p = 1+np.sqrt(1-a**2)
 #    brightness[rs<=r_p] = 0
@@ -367,7 +530,9 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 #    I = np.zeros(mask.shape) 
 #    I[mask] = brightness
 #    return(I)
-    
+
+
+#calculate the observed brightness for an arbitrary, evolving profile, passed in as the interpolation object
 def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect
@@ -386,20 +551,62 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
+    alpha = grid[:,0][mask]
+    beta = grid[:,1][mask]
+    rs = rs[mask]
+    th = th[mask]
+    ts = ts[mask]
+    
+    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
+    brightness = np.zeros(rs.shape[0])
+    redshift_sign = redshift_sign[mask]
+    
+    x_aux=rs*np.cos(th)
+    y_aux=rs*np.sin(th)
+
+    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[rs>=isco],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
+    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[rs<isco],x_aux[rs<isco],y_aux[rs<isco]]).T)
+
+    r_p = 1+np.sqrt(1-a**2)
+    brightness[rs<=r_p] = 0
+    
+    I = np.zeros(mask.shape) 
+    I[mask] = brightness
+    return(I)
+    
+def zoom_slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao,zoom):
+    """
+    Calculate the black hole image including the time delay due to lensing and geometric effect
+    (Eq. 50 P1)
+
+    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
+    :param mask: mask out the lensing band, see lb_f.py for detail
+    :param redshift_sign: sign of the redshift
+    :param a: black hole spin
+    :param isco: radius of the inner-most stable circular orbit
+    :param rs: source radius
+    :param th: source angle, polar coordinate
+    :param ts: time of emission at the source
+    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
+    :param thetao: observer inclination
+    :param zoom: porcentage of interest data for the zoom in the BH
+
+    :return: image of a lensed equitorial source with only radial dependence. 
+    """
     #######################################
     # without nan
     valid_mask = np.isfinite(ts)
     
     # time filtered 
     ts_valid = ts[valid_mask]
-    time_mask_valid = Mask_FilterTime(ts_valid)
+    time_mask_valid = Mask_FilterTime(ts_valid,zoom)
     
     # mask reconstruction
     time_mask = np.zeros_like(ts, dtype=bool)
     time_mask[valid_mask] = time_mask_valid
     
     # final mask 
-    combined_mask = mask & valid_mask & time_mask
+    combined_mask = mask & time_mask
     #######################################
     
     alpha = grid[:,0][combined_mask]
