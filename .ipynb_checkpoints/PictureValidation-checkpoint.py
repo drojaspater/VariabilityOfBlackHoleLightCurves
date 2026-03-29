@@ -4,7 +4,7 @@ from aart_func import *
 from params import * 
 
 # Creation of the .h5 data
-filename = path_lb++"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+filename = "LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 filepath = os.path.join(path_lb, filename)
 if os.path.exists(filepath):
     print(f"File {filename} already exists. Skipping...")
@@ -12,7 +12,7 @@ else:
     print(f"File {filename} not found. Running lensingbands.py...")
     subprocess.run(["python", "lensingbands.py"])
 
-filename = path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+filename = "Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 filepath = os.path.join(path_rt, filename)
 if os.path.exists(filepath):
     print(f"File {filename} already exists. Skipping...")
@@ -63,7 +63,8 @@ times = np.linspace(xtstart, xtend, nt)
 h5py.File.close(hf)
 
 
-##Fast Light 
+
+#Fast-Light two modes 
 print("Computing the fast-light single picture")
 
 fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
@@ -109,6 +110,13 @@ phi2=h5f['phi2'][:]
 
 h5f.close()
 
+
+
+
+
+
+print("Calculating interpolator and fundamental variables")
+
 fact=-(D_obs+2*np.log(D_obs))
 
 t0-=fact
@@ -116,14 +124,12 @@ t1-=fact
 t2-=fact
 
 
-print("Fast Light starts!")
-
 i_dt = times[1] - times[0]
 timeconversion = i_dt*MMkg*Gc/cc**3/(3600*24)  # [days]
 
 maxintensity = np.nanmax(data)
 
-# Separación entre picos
+# Mode of the lensing band
 mode0, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
 mode1, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
 mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
@@ -137,22 +143,53 @@ k0 = i_frame
 k1 = (k0 + shift_01) % (nt - 1)
 k2 = (k0 + shift_02) % (nt - 1)
 
-interpolated2_R0 = RegularGridInterpolator((x1,x2), data[k0,:,:], fill_value=0, bounds_error=False, method='linear')
-interpolated2_R1 = RegularGridInterpolator((x1,x2), data[k1,:,:], fill_value=0, bounds_error=False, method='linear')
-interpolated2_R2 = RegularGridInterpolator((x1,x2), data[k2,:,:], fill_value=0, bounds_error=False, method='linear')
+t0_fast = times[k0]
+t1_fast = times[k1]
+t2_fast = times[k2]
+
+
+interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
 
 t_obs = times[i_frame]
 
-print("Computing a lensed image")
 
-# Hipótesis: usar SIEMPRE la geometría de n=0
-i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R0,thetao)
-i_bghts1 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R1,thetao)
-i_bghts2 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,interpolated2_R2,thetao)
+
+
+
+
+##### displaced fast-light  #####  
+print("Displaced fast-light starts!")
+
+#Aquí debes meterle los tiempo k0, k1 y k2 
+i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t0_fast,interpolated3_R,thetao)
+i_bghts1 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t1_fast,interpolated3_R,thetao)
+i_bghts2 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t2_fast,interpolated3_R,thetao)
 
 i_I0 = (i_bghts0).reshape(N0,N0).T
 i_I1 = (i_bghts1).reshape(N0,N0).T
 i_I2 = (i_bghts2).reshape(N0,N0).T
+
+filename=path+"ImageDisplacedFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
+h5f = h5py.File(filename, 'w')
+h5f.create_dataset('bghts0', data=i_I0)
+h5f.create_dataset('bghts1', data=i_I1)
+h5f.create_dataset('bghts2', data=i_I2)
+h5f.close()
+print("Single image file ",filename," created.\n")
+
+
+
+
+
+#####  Fast-light  #####  
+print("Fast-light starts!")
+i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t0_fast,interpolated3_R,thetao)
+i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,t0_fast,interpolated3_R,thetao)
+i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,t0_fast,interpolated3_R,thetao)
+
+i_I0 = (i_bghts0).reshape(N0,N0).T
+i_I1 = (i_bghts1).reshape(N1,N1).T
+i_I2 = (i_bghts2).reshape(N2,N2).T
 
 filename=path+"ImageFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
 h5f = h5py.File(filename, 'w')
@@ -165,10 +202,12 @@ print("Single image file ",filename," created.\n")
 
 
 
-print("Using all the available inoisy frames")
-interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
 
-print("Computing lensed image using all inoisy frames")
+#####  Slow-light  #####  
+print("Using all the available inoisy frames")
+#interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
+
+print("Slow-light starts!")
 i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + t_obs, xtend), interpolated3_R,thetao)
 i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + t_obs, xtend), interpolated3_R,thetao)
 i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + t_obs, xtend), interpolated3_R,thetao)

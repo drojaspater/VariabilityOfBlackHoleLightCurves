@@ -64,7 +64,7 @@ inoisylims=0
 disk="dynamical"
 
 # inoisy frame for single images
-i_frame=0
+i_frame=1000
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
@@ -120,6 +120,7 @@ path_lb = path + r"LensingBands/"
 path_rt = path + r"RayTracing/"
 path_fl = path + r"FastLight/"
 path_sl = path + r"SlowLight/"
+path_bl = path + r"BriskLight/"
 path_lc = path + r"LightCurves/"
 path_im = path + r"Images/"
 

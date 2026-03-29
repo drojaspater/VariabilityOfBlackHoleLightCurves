@@ -1,4 +1,4 @@
-Briskimport subprocess
+import subprocess
 import pandas as pd
 from aart_func import *
 from params import * 
