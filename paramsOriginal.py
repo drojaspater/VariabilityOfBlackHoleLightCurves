@@ -68,9 +68,9 @@ i_frame=0
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
-f_tM= 1000
+f_tM= 5000
 #Number of snapshots in that range   
-snapshots_inoisy = 2048
+snapshots_inoisy = 8192
 snapshots= snapshots_inoisy//2
 
 n = 1
@@ -103,8 +103,8 @@ sigmap=0.5
 
 # With an equatorial profile from inoisy
 i_spatial=512
-i_temporal=2048
-inoisyduration=1000
+i_temporal=8192
+inoisyduration=5000
 i_spatialcorr=5.0
 i_spatialcorrxy=0.1
 inoisylimsgrid=30
@@ -128,9 +128,27 @@ path_im = path + r"Images/"
 path_inoisy = r'/projects/bekt/inoisy/'
 path_InoisyEnvelope = path + r'Inoisy_files/'
 
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 15000
+#i_source = r"inoisy_1024_2048_30_15000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_148123.0.h5"
 
-i_source = r"inoisy_512_2048_30_1000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_115249.0.h5"
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 2048, inoisyduration(f_tM)= 2500
+#i_source = r"inoisy_1024_2048_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_3459.0.h5"
 
+##i_spatial=512, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
+#i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
+i_source = r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5"
+
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 2500
+#i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87435.0.h5"
+#i_source = r"inoisy_1024_4096_30_2500_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_67897.0.h5"
+
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 4096, inoisyduration(f_tM)= 10000
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_558979.0.h5"
+#i_source = r"inoisy_1024_4096_30_10000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_670867.0.h5"
+
+##i_spatial=1024, i_temporal(snapshots_inoisy) = 8192, inoisyduration(f_tM)= 5000
+#i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_1834.0.h5"
+#i_source = r"inoisy_1024_8192_30_5000_5.00_0.10_0.5000_1.00_1.00_1.00_0.349_137.0_137.0_4381.0.h5"
 
 i_fname = r"inoisy_n%s_i%s_ft%s_spatial%s_snap%s.h5"%(noise,spin_case,inoisyduration,i_spatial,snapshots_inoisy)
 
