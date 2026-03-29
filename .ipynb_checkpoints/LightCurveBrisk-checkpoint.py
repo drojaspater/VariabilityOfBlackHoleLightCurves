@@ -40,8 +40,9 @@ else:
     print(f"File {filename} not found. Running raytracing.py...")
     subprocess.run(["python", "raytracing.py"])
     
-#subprocess.run(["python", "BriskLightMovie.py"])
-#subprocess.run(["python", "FastLightMovie.py"])
+subprocess.run(["python", "BriskLightMovie.py"])
+subprocess.run(["python", "FastLightMovie.py"])
+subprocess.run(["python", "iMovies.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
@@ -49,13 +50,25 @@ h5f = h5py.File(path_InoisyEnvelope+i_fname, 'r')
 data_lc = np.array(h5f['data/lightcurve_env'])
 h5f.close()
 
+
+
 # Importation of the slow-light movie 
-fimages= path_bl + "BriskLight%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+fimages= path_sl + "Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
 Is0=h5f['bghts0'][:]
 Is1=h5f['bghts1'][:]
 Is2=h5f['bghts2'][:]
+h5f.close()
+
+
+# Importation of the Brisk-light movie 
+fimages= path_bl + "BriskLight%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+print("Reading file: ",fimages)
+h5f = h5py.File(fimages,'r')
+Ib0=h5f['bghts0'][:]
+Ib1=h5f['bghts1'][:]
+Ib2=h5f['bghts2'][:]
 h5f.close()
 
 # Importation of the fast-light movie
@@ -69,17 +82,22 @@ I2=h5f['bghts2'][:]
 h5f.close() 
 
 # Light Curve Generation 
-LightCurve_inoisy    = data_lc
-LightCurve_BriskLight_0 = LightCurve(Is0)
+LightCurve_BriskLight_0 = LightCurve(Ib0)
 LightCurve_FastLight_0 = LightCurve(I0)
-LightCurve_BriskLight_1 = LightCurve(Is1)
+LightCurve_SlowLight_0 = LightCurve(Is0)
+
+LightCurve_BriskLight_1 = LightCurve(Ib1)
 LightCurve_FastLight_1 = LightCurve(I1)
-LightCurve_BriskLight_2 = LightCurve(Is2)
+LightCurve_SlowLight_1 = LightCurve(Is1)
+
+LightCurve_BriskLight_2 = LightCurve(Ib2)
 LightCurve_FastLight_2 = LightCurve(I2)
-LightCurve_BriskLight_01 = LightCurve(Is0,Is1)
-LightCurve_FastLight_01 = LightCurve(I0,I1)
-LightCurve_BriskLight = LightCurve(Is0,Is1,Is2)
+LightCurve_SlowLight_2 = LightCurve(Is2)
+
+LightCurve_BriskLight = LightCurve(Ib0,Ib1,Ib2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
+LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
+
 Time = np.linspace(i_tM,f_tM,snapshots)
 
 ##################################Change Emission Rate##################################
@@ -101,16 +119,19 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ########################################################################################
 
 df = pd.DataFrame({
-    'SlowLight n=0': LightCurve_BriskLight_0,
+    'Inoisy data': data_lc,
+    'BriskLight n=0': LightCurve_BriskLight_0,
     'FastLight n=0': LightCurve_FastLight_0,
-    'SlowLight n=1': LightCurve_BriskLight_1,
+    'SlowLight n=0': LightCurve_SlowLight_0,
+    'BriskLight n=1': LightCurve_BriskLight_1,
     'FastLight n=1': LightCurve_FastLight_1,
-    'SlowLight n=2': LightCurve_BriskLight_2,
+    'SlowLight n=1': LightCurve_SlowLight_1,
+    'BriskLight n=2': LightCurve_BriskLight_2,
     'FastLight n=2': LightCurve_FastLight_2,
-    'SlowLight n=0 + n=1': LightCurve_BriskLight_01,
-    'FastLight n=0 + n=1': LightCurve_FastLight_01,
-    'SlowLight': LightCurve_BriskLight,
+    'SlowLight n=2': LightCurve_SlowLight_2,
+    'BriskLight': LightCurve_BriskLight,
     'FastLight': LightCurve_FastLight,
+    'SlowLight': LightCurve_SlowLight,
     'Time': Time})
 
 df_name = path_lc + 'ShortTime_LightCurve_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])

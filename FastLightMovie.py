@@ -57,7 +57,7 @@ except:
 
 
 data=np.concatenate((data,data[0,:,:][np.newaxis,:,:]),axis=0)
-data=np.flip(data,axis=(2))
+#data=np.flip(data,axis=(2))
 
 
 ##################################Change Emission Rate##################################

@@ -69,15 +69,15 @@ I2=h5f['bghts2'][:]
 h5f.close() 
 
 # Light Curve Generation 
-LightCurve_inoisy    = data_lc
 LightCurve_SlowLight_0 = LightCurve(Is0)
 LightCurve_FastLight_0 = LightCurve(I0)
+
 LightCurve_SlowLight_1 = LightCurve(Is1)
 LightCurve_FastLight_1 = LightCurve(I1)
+
 LightCurve_SlowLight_2 = LightCurve(Is2)
 LightCurve_FastLight_2 = LightCurve(I2)
-LightCurve_SlowLight_01 = LightCurve(Is0,Is1)
-LightCurve_FastLight_01 = LightCurve(I0,I1)
+
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
 Time = np.linspace(i_tM,f_tM,snapshots)
@@ -101,14 +101,13 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 ########################################################################################
 
 df = pd.DataFrame({
+    'Inoisy data': data_lc,
     'SlowLight n=0': LightCurve_SlowLight_0,
     'FastLight n=0': LightCurve_FastLight_0,
     'SlowLight n=1': LightCurve_SlowLight_1,
     'FastLight n=1': LightCurve_FastLight_1,
     'SlowLight n=2': LightCurve_SlowLight_2,
     'FastLight n=2': LightCurve_FastLight_2,
-    'SlowLight n=0 + n=1': LightCurve_SlowLight_01,
-    'FastLight n=0 + n=1': LightCurve_FastLight_01,
     'SlowLight': LightCurve_SlowLight,
     'FastLight': LightCurve_FastLight,
     'Time': Time})
