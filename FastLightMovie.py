@@ -129,28 +129,52 @@ maxintensity=np.nanmax(data)
 interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
 
 
-def MovieWorker(tsnap):               
-
-    i_bghts0 = obsint.fast_light(supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, tsnap*dt_movie, interpolated3_R, thetao)
-    i_bghts1 = obsint.fast_light(supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, tsnap*dt_movie, interpolated3_R, thetao)
-    i_bghts2 = obsint.fast_light(supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, tsnap*dt_movie, interpolated3_R, thetao)
-
-    i_I0 = (i_bghts0).reshape(N0,N0).T
-    i_I1 = (i_bghts1).reshape(N1,N1).T  
-    i_I2 = (i_bghts2).reshape(N2,N2).T  
-
-    print("Calculating an image at time t=%s (M)"%np.round(tsnap*dt,5))
-    return(i_I0,i_I1,i_I2)
+# Define a COMMON time grid for both fast-light and slow-light
+# This ensures frame-by-frame temporal alignment
+t_frames = np.linspace(i_tM, f_tM, snapshots, endpoint=False)
 
 
+# Worker: now receives PHYSICAL OBSERVER TIME directly
+def MovieWorker(tobs):
+
+    # Fast-light: same emission time for all pixels
+    i_bghts0 = obsint.fast_light(
+        supergrid0, mask0, sign0, spin_case, isco,
+        rs0, phi0, tobs, interpolated3_R, thetao
+    )
+
+    i_bghts1 = obsint.fast_light(
+        supergrid1, mask1, sign1, spin_case, isco,
+        rs1, phi1, tobs, interpolated3_R, thetao
+    )
+
+    i_bghts2 = obsint.fast_light(
+        supergrid2, mask2, sign2, spin_case, isco,
+        rs2, phi2, tobs, interpolated3_R, thetao
+    )
+
+    # Reshape images
+    i_I0 = i_bghts0.reshape(N0, N0).T
+    i_I1 = i_bghts1.reshape(N1, N1).T
+    i_I2 = i_bghts2.reshape(N2, N2).T
+
+    # Print correct physical time
+    print(f"Calculating an image at time t={np.round(tobs, 5)} (M)")
+
+    return i_I0, i_I1, i_I2
+
+
+
+# Storage arrays
 I0s = []
 I1s = []
 I2s = []
 
 
-for i in range(snapshots):
-    i0, i1, i2 = MovieWorker(i)
-    
+# Loop over SAME time grid as slow-light
+for tobs in t_frames:
+    i0, i1, i2 = MovieWorker(tobs)
+
     I0s.append(i0)
     I1s.append(i1)
     I2s.append(i2)
