@@ -140,24 +140,24 @@ def mp_worker(tsnap):
     i_bghts0 = obsint.brisk_light(
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
         interpolated3_R, thetao,
-        np.mod(tsnap + left0 + t0, xtend), ## Sumar t0
-        np.mod(tsnap + right0 + t0, xtend), ## Sumar t0
+        np.mod(tsnap + left0, xtend), 
+        np.mod(tsnap + right0, xtend), 
         xtend
     )
 
     i_bghts1 = obsint.brisk_light(
         supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
         interpolated3_R, thetao,
-        np.mod(tsnap + left1 + t1, xtend), ## Sumar t1
-        np.mod(tsnap + right1 + t1, xtend), ## Sumar t1
+        np.mod(tsnap + left1, xtend), 
+        np.mod(tsnap + right1, xtend), 
         xtend
     )
 
     i_bghts2 = obsint.brisk_light(
         supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
         interpolated3_R, thetao,
-        np.mod(tsnap + left2 + t2, xtend), ## Sumar t2
-        np.mod(tsnap + right2 + t2, xtend), ## Sumar t2
+        np.mod(tsnap + left2, xtend), 
+        np.mod(tsnap + right2, xtend), 
         xtend
     )
 
