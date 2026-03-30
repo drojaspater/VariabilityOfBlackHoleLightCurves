@@ -127,6 +127,16 @@ mode0, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
 mode1, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
 mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
 
+widthleft0  = np.abs(mode0-left0)
+widthright0 = np.abs(right0-mode0)
+widthleft1  = np.abs(mode1-left1)
+widthright1 = np.abs(right1-mode1)
+widthleft2  = np.abs(mode2-left2)
+widthright2 = np.abs(right2-mode2)
+
+
+
+
 I0s = []
 I1s = []
 I2s = []
@@ -136,28 +146,38 @@ def mp_worker(tsnap):
     ts0 = np.mod(t0 + tsnap, xtend)
     ts1 = np.mod(t1 + tsnap, xtend)
     ts2 = np.mod(t2 + tsnap, xtend)
+    
+    lower0 = max(0, tsnap - widthleft0)
+    upper0 = min(xtend, tsnap + widthright0)
+    
+    lower1 = max(0, tsnap - widthleft1)
+    upper1 = min(xtend, tsnap + widthright1)
+    
+    lower2 = max(0, tsnap - widthleft2)
+    upper2 = min(xtend, tsnap + widthright2)
 
+    
     i_bghts0 = obsint.brisk_light(
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
         interpolated3_R, thetao,
-        np.mod(tsnap + left0, xtend), 
-        np.mod(tsnap + right0, xtend), 
+        lower0, 
+        upper0, 
         xtend
     )
 
     i_bghts1 = obsint.brisk_light(
         supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
         interpolated3_R, thetao,
-        np.mod(tsnap + left1, xtend), 
-        np.mod(tsnap + right1, xtend), 
+        lower1, 
+        upper1, 
         xtend
     )
 
     i_bghts2 = obsint.brisk_light(
         supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
         interpolated3_R, thetao,
-        np.mod(tsnap + left2, xtend), 
-        np.mod(tsnap + right2, xtend), 
+        lower2, 
+        upper2, 
         xtend
     )
 

@@ -41,8 +41,8 @@ else:
     subprocess.run(["python", "raytracing.py"])
     
 subprocess.run(["python", "BriskLightMovie.py"])
-subprocess.run(["python", "FastLightMovie.py"])
-subprocess.run(["python", "iMovies.py"])
+#subprocess.run(["python", "FastLightMovie.py"])
+#subprocess.run(["python", "iMovies.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
@@ -134,7 +134,7 @@ df = pd.DataFrame({
     'SlowLight': LightCurve_SlowLight,
     'Time': Time})
 
-df_name = path_lc + 'ShortTime_LightCurve_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'ShortTimeReal_LightCurve_datas_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({
