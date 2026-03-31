@@ -173,14 +173,14 @@ print("Displaced fast-light starts!")
 
 #Aquí debes meterle los tiempo k0, k1 y k2 
 i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,i_frame,interpolated3_R,thetao)
-i_bghts1 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t1_fast,interpolated3_R,thetao)
-i_bghts2 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t2_fast,interpolated3_R,thetao)
+i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,t1_fast,interpolated3_R,thetao)
+i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,t2_fast,interpolated3_R,thetao)
 
 i_I0 = (i_bghts0).reshape(N0,N0).T
 i_I1 = (i_bghts1).reshape(N0,N0).T
 i_I2 = (i_bghts2).reshape(N0,N0).T
 
-filename=path+"ImageDisplacedFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
+filename=path+"ImageDisplacedFastLight_LensingGeometry_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
 h5f = h5py.File(filename, 'w')
 h5f.create_dataset('bghts0', data=i_I0)
 h5f.create_dataset('bghts1', data=i_I1)
@@ -192,47 +192,47 @@ print("Single image file ",filename," created.\n")
 
 
 
-#####  Fast-light  #####  
-print("Fast-light starts!")
-i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,i_frame,interpolated3_R,thetao)
-i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,i_frame,interpolated3_R,thetao)
-i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,i_frame,interpolated3_R,thetao)
-
-i_I0 = (i_bghts0).reshape(N0,N0).T
-i_I1 = (i_bghts1).reshape(N1,N1).T
-i_I2 = (i_bghts2).reshape(N2,N2).T
-
-filename=path+"ImageFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
-h5f = h5py.File(filename, 'w')
-h5f.create_dataset('bghts0', data=i_I0)
-h5f.create_dataset('bghts1', data=i_I1)
-h5f.create_dataset('bghts2', data=i_I2)
-h5f.close()
-print("Single image file ",filename," created.\n")
+######  Fast-light  #####  
+#print("Fast-light starts!")
+#i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,i_frame,interpolated3_R,thetao)
+#i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,i_frame,interpolated3_R,thetao)
+#i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,i_frame,interpolated3_R,thetao)
+#
+#i_I0 = (i_bghts0).reshape(N0,N0).T
+#i_I1 = (i_bghts1).reshape(N1,N1).T
+#i_I2 = (i_bghts2).reshape(N2,N2).T
+#
+#filename=path+"ImageFastLight_a_%s_i_%s_%frame.h5"%(spin_case,i_case,i_frame)
+#h5f = h5py.File(filename, 'w')
+#h5f.create_dataset('bghts0', data=i_I0)
+#h5f.create_dataset('bghts1', data=i_I1)
+#h5f.create_dataset('bghts2', data=i_I2)
+#h5f.close()
+#print("Single image file ",filename," created.\n")
 
 
 
 
 #####  Slow-light  #####  
-print("Using all the available inoisy frames")
-#interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
-
-print("Slow-light starts!")
-i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + i_frame, xtend), interpolated3_R,thetao)
-i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + i_frame, xtend), interpolated3_R,thetao)
-i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + i_frame, xtend), interpolated3_R,thetao)
-
-i_I0 = (i_bghts0).reshape(N0,N0).T
-i_I1 = (i_bghts1).reshape(N1,N1).T
-i_I2 = (i_bghts2).reshape(N2,N2).T
-
-filename=path+"Dynamical_Image_a_%s_i_%s.h5"%(spin_case,i_case)
-h5f = h5py.File(filename, 'w')
-h5f.create_dataset('bghts0', data=i_I0)
-h5f.create_dataset('bghts1', data=i_I1)
-h5f.create_dataset('bghts2', data=i_I2)
-h5f.close()
-print("Images file ",filename," created.")
+#print("Using all the available inoisy frames")
+##interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
+#
+#print("Slow-light starts!")
+#i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + i_frame, xtend), interpolated3_R,thetao)
+#i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + i_frame, xtend), interpolated3_R,thetao)
+#i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + i_frame, xtend), interpolated3_R,thetao)
+#
+#i_I0 = (i_bghts0).reshape(N0,N0).T
+#i_I1 = (i_bghts1).reshape(N1,N1).T
+#i_I2 = (i_bghts2).reshape(N2,N2).T
+#
+#filename=path+"Dynamical_Image_a_%s_i_%s.h5"%(spin_case,i_case)
+#h5f = h5py.File(filename, 'w')
+#h5f.create_dataset('bghts0', data=i_I0)
+#h5f.create_dataset('bghts1', data=i_I1)
+#h5f.create_dataset('bghts2', data=i_I2)
+#h5f.close()
+#print("Images file ",filename," created.")
 
 
 
