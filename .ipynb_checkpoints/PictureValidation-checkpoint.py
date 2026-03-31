@@ -159,8 +159,8 @@ dt_src = times[1] - times[0]
 shift_01 = mode1 - mode0
 shift_02 = mode2 - mode0
 
-t1_fast = (t0_fast + shift_01) 
-t2_fast = (t0_fast + shift_02) 
+t1_fast = (i_frame + shift_01) 
+t2_fast = (i_frame + shift_02) 
 
 
 interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')

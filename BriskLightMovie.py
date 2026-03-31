@@ -169,24 +169,21 @@ def mp_worker(tsnap):
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
         interpolated3_R, thetao,
         lower0, 
-        upper0, 
-        xtend
+        upper0
     )
 
     i_bghts1 = obsint.brisk_light(
         supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
         interpolated3_R, thetao,
         lower1, 
-        upper1, 
-        xtend
+        upper1
     )
 
     i_bghts2 = obsint.brisk_light(
         supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
         interpolated3_R, thetao,
         lower2, 
-        upper2, 
-        xtend
+        upper2 
     )
 
     i_I0 = (i_bghts0).reshape(N0,N0).T
