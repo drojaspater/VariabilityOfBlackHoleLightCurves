@@ -63,15 +63,15 @@ inoisylims=0
 # Stationary assumes a single inoisy frame. "stationary" or "dynamical" 
 disk="dynamical"
 
-# inoisy frame for single images
-i_frame=0
+# inoisy time frame for single images
+i_frame=500
 # Initial and final times in units of M
 i_tM=0  
 #Makes sense when is less than the inoisy temporal length 
 f_tM= 1000
 #Number of snapshots in that range   
 snapshots_inoisy = 2048
-snapshots= snapshots_inoisy//2
+snapshots= snapshots_inoisy
 
 n = 1
 snapshots_source = snapshots_inoisy // n

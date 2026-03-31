@@ -91,7 +91,7 @@ for combo in combinations:
         # Stationary assumes a single inoisy frame. "stationary" or "dynamical" 
         disk="dynamical"
         
-        # inoisy frame for single images
+        # inoisy time frame for single images
         i_frame=0 
         
         # Initial and final times in units of M

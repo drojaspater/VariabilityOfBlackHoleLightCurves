@@ -24,11 +24,31 @@ else:
 print("Reading inoisy file: ",path_InoisyEnvelope+i_fname)
 
 hf = h5py.File(path_InoisyEnvelope+i_fname, 'r')
-
-data = np.array(hf['data/data_env'])
+try:
+    data = np.array(hf['data/data_env'])
+except:
+    data = np.array(hf['data/data_raw'])
 #inoisy has periodic boudaries, so we need to copy wrap the data with one frame
 data=np.concatenate((data,data[0,:,:][np.newaxis,:,:]),axis=0)
-data=np.flip(data,axis=(2))
+
+
+##################################Change Emission Rate##################################
+## You can delate this section and nothing happen, this is only for the variation on the
+## Emission rate
+
+
+def LowerDimension(df):
+    selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
+
+    data_N = np.zeros((len(selected_indices),data.shape[1],data.shape[2]))
+    for i in range(len(selected_indices)):
+        j = selected_indices[i]
+        data_N[i] =  df[j]
+        
+    return data_N
+
+data = LowerDimension(data)
+########################################################################################
 
 nt = data.shape[0] #inoisy time resolution
 ni = data.shape[1] #inoisy x resolution
@@ -136,23 +156,14 @@ mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
 
 dt_src = times[1] - times[0]
 
-shift_01 = int(np.round((mode1 - mode0)/dt_src))
-shift_02 = int(np.round((mode2 - mode0)/dt_src))
+shift_01 = mode1 - mode0
+shift_02 = mode2 - mode0
 
-k0 = i_frame
-k1 = (k0 + shift_01) % (nt - 1)
-k2 = (k0 + shift_02) % (nt - 1)
-
-t0_fast = times[k0]
-t1_fast = times[k1]
-t2_fast = times[k2]
+t1_fast = (t0_fast + shift_01) 
+t2_fast = (t0_fast + shift_02) 
 
 
 interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
-
-t_obs = times[i_frame]
-
-
 
 
 
@@ -161,7 +172,7 @@ t_obs = times[i_frame]
 print("Displaced fast-light starts!")
 
 #Aquí debes meterle los tiempo k0, k1 y k2 
-i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t0_fast,interpolated3_R,thetao)
+i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,i_frame,interpolated3_R,thetao)
 i_bghts1 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t1_fast,interpolated3_R,thetao)
 i_bghts2 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t2_fast,interpolated3_R,thetao)
 
@@ -183,9 +194,9 @@ print("Single image file ",filename," created.\n")
 
 #####  Fast-light  #####  
 print("Fast-light starts!")
-i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,t0_fast,interpolated3_R,thetao)
-i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,t0_fast,interpolated3_R,thetao)
-i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,t0_fast,interpolated3_R,thetao)
+i_bghts0 = obsint.fast_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,i_frame,interpolated3_R,thetao)
+i_bghts1 = obsint.fast_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,i_frame,interpolated3_R,thetao)
+i_bghts2 = obsint.fast_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,i_frame,interpolated3_R,thetao)
 
 i_I0 = (i_bghts0).reshape(N0,N0).T
 i_I1 = (i_bghts1).reshape(N1,N1).T
@@ -202,15 +213,14 @@ print("Single image file ",filename," created.\n")
 
 
 
-
 #####  Slow-light  #####  
 print("Using all the available inoisy frames")
 #interpolated3_R = RegularGridInterpolator((times,x1,x2), data, fill_value=0, bounds_error=False, method='linear')
 
 print("Slow-light starts!")
-i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + t_obs, xtend), interpolated3_R,thetao)
-i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + t_obs, xtend), interpolated3_R,thetao)
-i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + t_obs, xtend), interpolated3_R,thetao)
+i_bghts0 = obsint.slow_light(supergrid0,mask0,sign0,spin_case,isco,rs0,phi0,np.mod(t0 + i_frame, xtend), interpolated3_R,thetao)
+i_bghts1 = obsint.slow_light(supergrid1,mask1,sign1,spin_case,isco,rs1,phi1,np.mod(t1 + i_frame, xtend), interpolated3_R,thetao)
+i_bghts2 = obsint.slow_light(supergrid2,mask2,sign2,spin_case,isco,rs2,phi2,np.mod(t2 + i_frame, xtend), interpolated3_R,thetao)
 
 i_I0 = (i_bghts0).reshape(N0,N0).T
 i_I1 = (i_bghts1).reshape(N1,N1).T
