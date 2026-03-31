@@ -127,12 +127,12 @@ mode0, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
 mode1, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
 mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
 
-widthleft0  = np.abs(mode0-left0)
-widthright0 = np.abs(right0-mode0)
-widthleft1  = np.abs(mode1-left1)
-widthright1 = np.abs(right1-mode1)
-widthleft2  = np.abs(mode2-left2)
-widthright2 = np.abs(right2-mode2)
+#widthleft0  = np.abs(mode0-left0)
+#widthright0 = np.abs(right0-mode0)
+#widthleft1  = np.abs(mode1-left1)
+#widthright1 = np.abs(right1-mode1)
+#widthleft2  = np.abs(mode2-left2)
+#widthright2 = np.abs(right2-mode2)
 
 
 
@@ -147,15 +147,23 @@ def mp_worker(tsnap):
     ts1 = np.mod(t1 + tsnap, xtend)
     ts2 = np.mod(t2 + tsnap, xtend)
     
-    lower0 = max(0, tsnap - widthleft0)
-    upper0 = min(xtend, tsnap + widthright0)
-    
-    lower1 = max(0, tsnap - widthleft1)
-    upper1 = min(xtend, tsnap + widthright1)
-    
-    lower2 = max(0, tsnap - widthleft2)
-    upper2 = min(xtend, tsnap + widthright2)
+    #lower0 = max(0, tsnap - widthleft0)
+    #upper0 = min(xtend, tsnap + widthright0)
+    #
+    #lower1 = max(0, tsnap - widthleft1)
+    #upper1 = min(xtend, tsnap + widthright1)
+    #
+    #lower2 = max(0, tsnap - widthleft2)
+    #upper2 = min(xtend, tsnap + widthright2)
 
+    lower0 = np.mod(left0 + tsnap, xtend)
+    upper0 = np.mod(right0 + tsnap, xtend)
+
+    lower1 = np.mod(left1 + tsnap, xtend)
+    upper1 = np.mod(right1 + tsnap, xtend)
+
+    lower2 = np.mod(left2 + tsnap, xtend)
+    upper2 = np.mod(right2 + tsnap, xtend)
     
     i_bghts0 = obsint.brisk_light(
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,

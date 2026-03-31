@@ -384,13 +384,13 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     I[mask] = brightness
     return(I)
 
-def periodic_interval_mask(t, left, right, period):
+def periodic_interval_mask(t, left, right):
     if left <= right:
         return (t >= left) & (t <= right)
     else:
         return (t >= left) | (t <= right)
 
-def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s, period):
+def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)
@@ -407,7 +407,6 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     :param thetao: observer inclination
     :param left_s: left boundary of the modal HDI
     :param right_s: right boundary of the modal HDI 
-    :param period: snapshot time (observation time)
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
@@ -418,7 +417,7 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     th    = th[mask]
     ts    = ts[mask]
 
-    time_mask = periodic_interval_mask(ts, left_s, right_s, period)
+    time_mask = periodic_interval_mask(ts, left_s, right_s)
 
     cond_disk = (rs >= isco)
     cond_gas  = (rs < isco)
