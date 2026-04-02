@@ -116,11 +116,11 @@ t1-=fact
 t2-=fact
 
 ###Desplazamiento del tiempo para empezar en la mitad de la pelicula###
-#fact2=xtend/2-np.nanmax(t0)
+fact2=xtend/2-np.nanmax(t0)
 
-#t0+=fact2
-#t1+=fact2
-#t2+=fact2
+t0+=fact2
+t1+=fact2
+t2+=fact2
 ### ###
 
 print("AART starts!")

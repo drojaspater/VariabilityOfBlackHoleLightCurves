@@ -41,8 +41,8 @@ else:
     subprocess.run(["python", "raytracing.py"])
     
 subprocess.run(["python", "BriskLightMovie.py"])
-subprocess.run(["python", "FastLightMovie.py"])
-subprocess.run(["python", "iMovies.py"])
+#subprocess.run(["python", "FastLightMovie.py"])
+#subprocess.run(["python", "iMovies.py"])
 
 # Lecuture of inoisy
 print("Reading file: ",path_InoisyEnvelope+i_fname)
