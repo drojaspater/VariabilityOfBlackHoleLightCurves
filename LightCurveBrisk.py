@@ -63,7 +63,7 @@ h5f.close()
 
 
 # Importation of the Brisk-light movie 
-fimages= path_bl + "BriskLight%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+fimages= path_bl + "BriskLight2_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
 Ib0=h5f['bghts0'][:]

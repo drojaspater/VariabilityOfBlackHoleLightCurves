@@ -384,13 +384,13 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     I[mask] = brightness
     return(I)
 
-def periodic_interval_mask(t, left, right, period):
+def periodic_interval_mask(t, left, right):
     if left <= right:
         return (t >= left) & (t <= right)
     else:
         return (t >= left) | (t <= right)
 
-def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s, period):
+def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)
@@ -407,7 +407,6 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     :param thetao: observer inclination
     :param left_s: left boundary of the modal HDI
     :param right_s: right boundary of the modal HDI 
-    :param period: snapshot time (observation time)
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
@@ -418,7 +417,7 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     th    = th[mask]
     ts    = ts[mask]
 
-    time_mask = periodic_interval_mask(ts, left_s, right_s, period)
+    time_mask = periodic_interval_mask(ts, left_s, right_s)
 
     cond_disk = (rs >= isco)
     cond_gas  = (rs < isco)
@@ -466,56 +465,92 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     I[mask] = brightness
     return I
 
-    
-#def brisk_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao,width,tsnap):
-#    """
-#    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
-#    (Eq. 50 P1)
-#
-#    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
-#    :param mask: mask out the lensing band, see lb_f.py for detail
-#    :param redshift_sign: sign of the redshift
-#    :param a: black hole spin
-#    :param isco: radius of the inner-most stable circular orbit
-#    :param rs: source radius
-#    :param th: source angle, polar coordinate
-#    :param ts: time of emission at the source
-#    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
-#    :param thetao: observer inclination
-#    :param width: Width of the interest time distribution and restriction of the source
-#    :param tsnap: snapshot time (observation time)
-#
-#    :return: image of a lensed equitorial source with only radial dependence. 
-#    """
-#    alpha = grid[:,0][mask]
-#    beta = grid[:,1][mask]
-#    rs = rs[mask]
-#    th = th[mask]
-#    ts = ts[mask]
-#
-#    time_mask = (ts >= tsnap - width/2) & (ts <= tsnap + width/2)
-#    
-#    combined_mask1 = (rs>=isco) & time_mask
-#    combined_mask2 = (rs<isco) & time_mask
-#    
-#    
-#    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
-#    brightness = np.zeros(rs.shape[0])
-#    redshift_sign = redshift_sign[mask]
-#    
-#    x_aux=rs*np.cos(th)
-#    y_aux=rs*np.sin(th)
-#
-#    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[combined_mask1],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
-#    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[combined_mask2],x_aux[rs<isco],y_aux[rs<isco]]).T)
-#
-#    r_p = 1+np.sqrt(1-a**2)
-#    brightness[rs<=r_p] = 0
-#    
-#    I = np.zeros(mask.shape) 
-#    I[mask] = brightness
-#    return(I)
+  def brisk_light2(grid, mask, redshift_sign, a, isco, rs, th, ts,
+                interpolation, thetao, left_s, right_s):
+    """
+    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
+    (Eq. 50 P1)
 
+    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
+    :param mask: mask out the lensing band, see lb_f.py for detail
+    :param redshift_sign: sign of the redshift
+    :param a: black hole spin
+    :param isco: radius of the inner-most stable circular orbit
+    :param rs: source radius
+    :param th: source angle, polar coordinate
+    :param ts: time of emission at the source
+    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
+    :param thetao: observer inclination
+    :param left_s: left boundary of the modal HDI
+    :param right_s: right boundary of the modal HDI 
+
+    :return: image of a lensed equitorial source with only radial dependence. 
+    """
+
+    # Restrict everything to the active lensing-band pixels
+    alpha = grid[:, 0][mask]
+    beta = grid[:, 1][mask]
+    rs = rs[mask]
+    th = th[mask]
+    ts = ts[mask]
+    redshift_sign = redshift_sign[mask]
+
+    lamb, eta = rt.conserved_quantities(alpha, beta, thetao, a)
+
+    brightness = np.zeros_like(rs, dtype=float)
+
+    # Temporal selection
+    time_mask = periodic_interval_mask(ts, left_s, right_s)
+
+    # Final masks: only interpolate where both the region and time are valid
+    disk_mask = (rs >= isco) & time_mask & (rs > r_p)
+    gas_mask = (rs < isco) & time_mask & (rs > r_p)
+
+    if np.any(disk_mask):
+        x_disk = rs[disk_mask] * np.cos(th[disk_mask])
+        y_disk = rs[disk_mask] * np.sin(th[disk_mask])
+
+        interp_disk = interpolation(
+            np.column_stack((ts[disk_mask], x_disk, y_disk))
+        )
+
+        g_disk = gDisk(
+            rs[disk_mask],
+            a,
+            redshift_sign[disk_mask],
+            lamb[disk_mask],
+            eta[disk_mask]
+        ) ** gfactor
+
+        brightness[disk_mask] = g_disk * interp_disk
+
+    if np.any(gas_mask):
+        x_gas = rs[gas_mask] * np.cos(th[gas_mask])
+        y_gas = rs[gas_mask] * np.sin(th[gas_mask])
+
+        interp_gas = interpolation(
+            np.column_stack((ts[gas_mask], x_gas, y_gas))
+        )
+
+        g_gas = gGas(
+            rs[gas_mask],
+            a,
+            redshift_sign[gas_mask],
+            lamb[gas_mask],
+            eta[gas_mask]
+        ) ** gfactor
+
+        brightness[gas_mask] = g_gas * interp_gas
+
+
+    # Horizon cutoff
+    r_p = 1 + np.sqrt(1 - a**2)
+    brightness[rs <= r_p] = 0
+    # Rebuild full image array
+    I = np.zeros(mask.shape, dtype=float)
+    I[mask] = brightness
+
+    return I
 
 #calculate the observed brightness for an arbitrary, evolving profile, passed in as the interpolation object
 def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
