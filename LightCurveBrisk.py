@@ -134,7 +134,7 @@ df = pd.DataFrame({
     'SlowLight': LightCurve_SlowLight,
     'Time': Time})
 
-df_name = path_lc + 'ShortTime_LightCurve_datas_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'ShorthalfTime_LightCurve_datas_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({

@@ -267,7 +267,7 @@ def Mask_FilterTime(T,porcentage):
             
     return mascara
 #########################################################################################
-def modal_hdi_kde(data, p=0.68, gridsize=4000):
+def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     """
     Compute a modal highest-density interval (HDI) from a kernel density estimate (KDE).
     This function estimates the probability density of the input data using a Gaussian
@@ -286,38 +286,61 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000):
               - mass: approximate probability mass enclosed in the interval
               - threshold: density threshold defining the interval
     """
-    data = np.asarray(data)
-    # Filtrar valores no finitos
+    data = np.asarray(data, dtype=float)
     data_finite = data[np.isfinite(data)]
-    
+
+    if data_finite.size == 0:
+        raise ValueError("No hay datos finitos.")
+    if data_finite.size < 2:
+        raise ValueError("Se necesitan al menos 2 datos para gaussian_kde.")
+    if not (0 < p <= 1):
+        raise ValueError("p debe estar en el intervalo (0, 1].")
+
+    # Caso degenerado: todos los valores iguales o casi iguales
+    if np.allclose(data_finite, data_finite[0]):
+        x0 = data_finite[0]
+        return x0, x0, x0, 0.0, 1.0, np.inf
+
     kde = gaussian_kde(data_finite)
-    xgrid = np.linspace(data_finite.min(), data_finite.max(), gridsize)
+
+    xmin = data_finite.min()
+    xmax = data_finite.max()
+    std = np.std(data_finite, ddof=1)
+    pad = pad_factor * std if std > 0 else 1.0
+
+    xgrid = np.linspace(xmin - pad, xmax + pad, gridsize)
     dens = kde(xgrid)
 
     dx = xgrid[1] - xgrid[0]
     probs = dens * dx
+    total_mass = probs.sum()
+
+    if total_mass <= 0 or not np.isfinite(total_mass):
+        raise ValueError("La masa total estimada del KDE no es válida.")
+
+    # Renormalizar sobre el grid
+    probs = probs / total_mass
+    dens = dens / total_mass
+
     mode_idx = np.argmax(dens)
     mode = xgrid[mode_idx]
-    
-    # Binary search over the density threshold
-    lo, hi = 0.0, dens[mode_idx]
 
+    lo, hi = 0.0, dens[mode_idx]
     best = None
 
     for _ in range(60):
-        c = (lo + hi) / 2.0
+        c = 0.5 * (lo + hi)
         mask = dens >= c
 
-        # Connected component containing the mode
         if not mask[mode_idx]:
             hi = c
             continue
 
-        i = mode_idx
-        l = i
+        l = mode_idx
         while l > 0 and mask[l - 1]:
             l -= 1
-        r = i
+
+        r = mode_idx
         while r < len(mask) - 1 and mask[r + 1]:
             r += 1
 
@@ -325,12 +348,17 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000):
 
         if mass >= p:
             lo = c
-            best = (mode, xgrid[l], xgrid[r], xgrid[r] - xgrid[l],  mass, c)
+            best = (mode, xgrid[l], xgrid[r], xgrid[r] - xgrid[l], mass, c)
         else:
             hi = c
 
-    return best  # (mode, left, right, width = right - left, mass, threshold)
+    if best is None:
+        raise RuntimeError(
+            f"No se encontró HDI para p={p}. "
+            f"Revisa si el grid es demasiado corto o los datos son degenerados."
+        )
 
+    return best
 #########################################################################################
 #########################################################################################
 ##########################################################################################
