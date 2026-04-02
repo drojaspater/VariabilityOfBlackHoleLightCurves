@@ -390,82 +390,8 @@ def periodic_interval_mask(t, left, right):
     else:
         return (t >= left) | (t <= right)
 
+
 def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
-    """
-    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
-    (Eq. 50 P1)
-
-    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
-    :param mask: mask out the lensing band, see lb_f.py for detail
-    :param redshift_sign: sign of the redshift
-    :param a: black hole spin
-    :param isco: radius of the inner-most stable circular orbit
-    :param rs: source radius
-    :param th: source angle, polar coordinate
-    :param ts: time of emission at the source
-    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
-    :param thetao: observer inclination
-    :param left_s: left boundary of the modal HDI
-    :param right_s: right boundary of the modal HDI 
-
-    :return: image of a lensed equitorial source with only radial dependence. 
-    """
-
-    alpha = grid[:,0][mask]
-    beta  = grid[:,1][mask]
-    rs    = rs[mask]
-    th    = th[mask]
-    ts    = ts[mask]
-
-    time_mask = periodic_interval_mask(ts, left_s, right_s)
-
-    cond_disk = (rs >= isco)
-    cond_gas  = (rs < isco)
-
-    interp_disk = cond_disk & time_mask
-    interp_gas  = cond_gas & time_mask
-
-    lamb, eta = rt.conserved_quantities(alpha, beta, thetao, a)
-    brightness = np.zeros(rs.shape[0])
-    redshift_sign = redshift_sign[mask]
-
-    x_aux = rs*np.cos(th)
-    y_aux = rs*np.sin(th)
-
-    if np.any(cond_disk):
-        g_factors = gDisk(rs[cond_disk], a, redshift_sign[cond_disk],
-                          lamb[cond_disk], eta[cond_disk])**gfactor
-        interp_values = np.zeros(np.sum(cond_disk))
-        if np.any(interp_disk):
-            disk_idx = np.where(cond_disk)[0]
-            interp_idx = np.where(interp_disk)[0]
-            local_mask = np.isin(disk_idx, interp_idx)
-            interp_values[local_mask] = interpolation(
-                np.vstack([ts[interp_disk], x_aux[interp_disk], y_aux[interp_disk]]).T
-            )
-        brightness[cond_disk] = g_factors * interp_values
-
-    if np.any(cond_gas):
-        g_factors = gGas(rs[cond_gas], a, redshift_sign[cond_gas],
-                         lamb[cond_gas], eta[cond_gas])**gfactor
-        interp_values = np.zeros(np.sum(cond_gas))
-        if np.any(interp_gas):
-            gas_idx = np.where(cond_gas)[0]
-            interp_idx = np.where(interp_gas)[0]
-            local_mask = np.isin(gas_idx, interp_idx)
-            interp_values[local_mask] = interpolation(
-                np.vstack([ts[interp_gas], x_aux[interp_gas], y_aux[interp_gas]]).T
-            )
-        brightness[cond_gas] = g_factors * interp_values
-
-    r_p = 1 + np.sqrt(1 - a**2)
-    brightness[rs <= r_p] = 0
-
-    I = np.zeros(mask.shape)
-    I[mask] = brightness
-    return I
-
-def brisk_light2(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)

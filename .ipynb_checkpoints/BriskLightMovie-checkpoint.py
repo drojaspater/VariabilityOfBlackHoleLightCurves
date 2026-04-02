@@ -165,21 +165,21 @@ def mp_worker(tsnap):
     lower2 = np.mod(left2 + tsnap, xtend)
     upper2 = np.mod(right2 + tsnap, xtend)
     
-    i_bghts0 = obsint.brisk_light2(
+    i_bghts0 = obsint.brisk_light(
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
         interpolated3_R, thetao,
         lower0, 
         upper0
     )
 
-    i_bghts1 = obsint.brisk_light2(
+    i_bghts1 = obsint.brisk_light(
         supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
         interpolated3_R, thetao,
         lower1, 
         upper1
     )
 
-    i_bghts2 = obsint.brisk_light2(
+    i_bghts2 = obsint.brisk_light(
         supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
         interpolated3_R, thetao,
         lower2, 
@@ -198,7 +198,7 @@ def mp_worker(tsnap):
 def main():
     p = get_context("spawn").Pool(nthreads)
     I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
-    filename=path_bl+"BriskLight2_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+    filename=path_bl+"BriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 
     h5f = h5py.File(filename, 'w')
     h5f.create_dataset('bghts0', data=np.array(I0s))
