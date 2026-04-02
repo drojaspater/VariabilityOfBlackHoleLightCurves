@@ -502,8 +502,8 @@ def brisk_light2(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, t
     time_mask = periodic_interval_mask(ts, left_s, right_s)
 
     # Final masks: only interpolate where both the region and time are valid
-    disk_mask = (rs >= isco) & time_mask & (rs > r_p)
-    gas_mask = (rs < isco) & time_mask & (rs > r_p)
+    disk_mask = (rs >= isco) & time_mask 
+    gas_mask = (rs < isco) & time_mask 
 
     if np.any(disk_mask):
         x_disk = rs[disk_mask] * np.cos(th[disk_mask])
