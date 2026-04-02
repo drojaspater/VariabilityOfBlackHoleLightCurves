@@ -465,8 +465,7 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     I[mask] = brightness
     return I
 
-  def brisk_light2(grid, mask, redshift_sign, a, isco, rs, th, ts,
-                interpolation, thetao, left_s, right_s):
+def brisk_light2(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)
@@ -510,17 +509,9 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
         x_disk = rs[disk_mask] * np.cos(th[disk_mask])
         y_disk = rs[disk_mask] * np.sin(th[disk_mask])
 
-        interp_disk = interpolation(
-            np.column_stack((ts[disk_mask], x_disk, y_disk))
-        )
+        interp_disk = interpolation(np.column_stack((ts[disk_mask], x_disk, y_disk)))
 
-        g_disk = gDisk(
-            rs[disk_mask],
-            a,
-            redshift_sign[disk_mask],
-            lamb[disk_mask],
-            eta[disk_mask]
-        ) ** gfactor
+        g_disk = gDisk(rs[disk_mask],a,redshift_sign[disk_mask],lamb[disk_mask],eta[disk_mask]) ** gfactor
 
         brightness[disk_mask] = g_disk * interp_disk
 
@@ -528,20 +519,11 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
         x_gas = rs[gas_mask] * np.cos(th[gas_mask])
         y_gas = rs[gas_mask] * np.sin(th[gas_mask])
 
-        interp_gas = interpolation(
-            np.column_stack((ts[gas_mask], x_gas, y_gas))
-        )
+        interp_gas = interpolation(np.column_stack((ts[gas_mask], x_gas, y_gas)))
 
-        g_gas = gGas(
-            rs[gas_mask],
-            a,
-            redshift_sign[gas_mask],
-            lamb[gas_mask],
-            eta[gas_mask]
-        ) ** gfactor
+        g_gas = gGas(rs[gas_mask],a,redshift_sign[gas_mask],lamb[gas_mask],eta[gas_mask]) ** gfactor
 
         brightness[gas_mask] = g_gas * interp_gas
-
 
     # Horizon cutoff
     r_p = 1 + np.sqrt(1 - a**2)
