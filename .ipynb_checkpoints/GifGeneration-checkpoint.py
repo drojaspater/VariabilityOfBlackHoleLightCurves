@@ -106,11 +106,21 @@ for tsnap in range(snapshots):
     # ============================================================
     # IMÁGENES + CONTEO
     # ============================================================
+    # ============================================================
+    # IMÁGENES + CONTEO
+    # ============================================================
+    img_b = Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap]
+    img_s = Is0[tsnap] + Is1[tsnap] + Is2[tsnap]
+    img_f = I0[tsnap] + I1[tsnap] + I2[tsnap]
+
+    VMAX = np.max(Is0 + Is1 + Is2)
 
     # Brisk
-    img_b = Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap]
     ax1.imshow(img_b, origin="lower", cmap="plasma",
-               extent=extent, vmin=0, vmax=VMAX)
+               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax1.set_xlim(-10, 10)
+    ax1.set_ylim(-10, 10)
+    ax1.set_facecolor("xkcd:black")
     ax1.set_title("Brisk-Light")
     ax1.text(0.02, 0.95,
              f"N={img_b.size}\nNZ={np.count_nonzero(img_b)}",
@@ -119,9 +129,11 @@ for tsnap in range(snapshots):
              bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
     # Slow
-    img_s = Is0[tsnap] + Is1[tsnap] + Is2[tsnap]
     ax2.imshow(img_s, origin="lower", cmap="plasma",
-               extent=extent, vmin=0, vmax=VMAX)
+               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax2.set_xlim(-10, 10)
+    ax2.set_ylim(-10, 10)
+    ax2.set_facecolor("xkcd:black")
     ax2.set_title("Slow-Light")
     ax2.text(0.02, 0.95,
              f"N={img_s.size}\nNZ={np.count_nonzero(img_s)}",
@@ -130,9 +142,11 @@ for tsnap in range(snapshots):
              bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
     # Fast
-    img_f = I0[tsnap] + I1[tsnap] + I2[tsnap]
     ax3.imshow(img_f, origin="lower", cmap="plasma",
-               extent=extent, vmin=0, vmax=VMAX)
+               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax3.set_xlim(-10, 10)
+    ax3.set_ylim(-10, 10)
+    ax3.set_facecolor("xkcd:black")
     ax3.set_title("Fast-Light")
     ax3.text(0.02, 0.95,
              f"N={img_f.size}\nNZ={np.count_nonzero(img_f)}",
