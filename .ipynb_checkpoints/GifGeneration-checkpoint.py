@@ -61,7 +61,6 @@ Time = np.linspace(i_tM,f_tM,snapshots)
 
 from matplotlib.gridspec import GridSpec
 
-
 # ============================================================
 # NORMALIZACIÓN DE CURVAS
 # ============================================================
@@ -74,11 +73,6 @@ LCs = FluxFactor(LightCurve_SlowLight)
 LCf = FluxFactor(LightCurve_FastLight)
 
 # ============================================================
-# VMAX GLOBAL
-# ============================================================
-VMAX = np.max(Is0 + Is1 + Is2)
-
-# ============================================================
 # CONFIG (USANDO path_im)
 # ============================================================
 extent = [-30, 30, -30, 30]
@@ -89,6 +83,16 @@ os.makedirs(frames_dir, exist_ok=True)
 gif_path = os.path.join(path_im, "movie.gif")
 
 images = []
+
+# ============================================================
+# ESCALA LOG GLOBAL
+# ============================================================
+from matplotlib.colors import LogNorm
+
+eps = 1e-12
+all_slow = Is0 + Is1 + Is2
+VMAX = np.percentile(all_slow, 99.5)
+VMIN = max(np.percentile(all_slow[all_slow > 0], 1), eps)
 
 # ============================================================
 # GENERACIÓN DE FRAMES
@@ -106,18 +110,13 @@ for tsnap in range(snapshots):
     # ============================================================
     # IMÁGENES + CONTEO
     # ============================================================
-    # ============================================================
-    # IMÁGENES + CONTEO
-    # ============================================================
     img_b = Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap]
     img_s = Is0[tsnap] + Is1[tsnap] + Is2[tsnap]
     img_f = I0[tsnap] + I1[tsnap] + I2[tsnap]
 
-    VMAX = np.max(Is0 + Is1 + Is2)
-
     # Brisk
-    ax1.imshow(img_b, origin="lower", cmap="plasma",
-               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax1.imshow(img_b + eps, origin="lower", cmap="plasma",
+               extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
     ax1.set_xlim(-10, 10)
     ax1.set_ylim(-10, 10)
     ax1.set_facecolor("xkcd:black")
@@ -129,8 +128,8 @@ for tsnap in range(snapshots):
              bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
     # Slow
-    ax2.imshow(img_s, origin="lower", cmap="plasma",
-               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax2.imshow(img_s + eps, origin="lower", cmap="plasma",
+               extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
     ax2.set_xlim(-10, 10)
     ax2.set_ylim(-10, 10)
     ax2.set_facecolor("xkcd:black")
@@ -142,8 +141,8 @@ for tsnap in range(snapshots):
              bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
     # Fast
-    ax3.imshow(img_f, origin="lower", cmap="plasma",
-               extent=[-30, 30, -30, 30], vmax=VMAX)
+    ax3.imshow(img_f + eps, origin="lower", cmap="plasma",
+               extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
     ax3.set_xlim(-10, 10)
     ax3.set_ylim(-10, 10)
     ax3.set_facecolor("xkcd:black")
@@ -160,6 +159,7 @@ for tsnap in range(snapshots):
     ax4.plot(Time[:tsnap+1], LCb[:tsnap+1], label="Brisk")
     ax4.plot(Time[:tsnap+1], LCs[:tsnap+1], label="Slow")
     ax4.plot(Time[:tsnap+1], LCf[:tsnap+1], label="Fast")
+    ax4.axvline(Time[tsnap], color="k", ls="--", lw=1)
 
     ax4.set_xlim(Time[0], Time[-1])
     ax4.set_xlabel("T (M)")
@@ -167,13 +167,14 @@ for tsnap in range(snapshots):
     ax4.legend()
 
     # ============================================================
-    # GUARDAR
+    # GUARDAR FRAME
     # ============================================================
     fname = os.path.join(frames_dir, f"frame_{tsnap:04d}.png")
-    plt.savefig(fname)
+    plt.savefig(fname, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     images.append(imageio.imread(fname))
+
 # ============================================================
 # CREAR GIF
 # ============================================================
