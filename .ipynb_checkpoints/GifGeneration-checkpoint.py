@@ -103,23 +103,46 @@ for tsnap in range(snapshots):
     ax3 = fig.add_subplot(gs[0, 2])
     ax4 = fig.add_subplot(gs[1, :])
 
-    # Imágenes
-    ax1.imshow(Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap],
-               origin="lower", cmap="plasma",
+    # ============================================================
+    # IMÁGENES + CONTEO
+    # ============================================================
+
+    # Brisk
+    img_b = Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap]
+    ax1.imshow(img_b, origin="lower", cmap="plasma",
                extent=extent, vmin=0, vmax=VMAX)
     ax1.set_title("Brisk-Light")
+    ax1.text(0.02, 0.95,
+             f"N={img_b.size}\nNZ={np.count_nonzero(img_b)}",
+             transform=ax1.transAxes, color="white",
+             fontsize=9, va="top",
+             bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
-    ax2.imshow(Is0[tsnap] + Is1[tsnap] + Is2[tsnap],
-               origin="lower", cmap="plasma",
+    # Slow
+    img_s = Is0[tsnap] + Is1[tsnap] + Is2[tsnap]
+    ax2.imshow(img_s, origin="lower", cmap="plasma",
                extent=extent, vmin=0, vmax=VMAX)
     ax2.set_title("Slow-Light")
+    ax2.text(0.02, 0.95,
+             f"N={img_s.size}\nNZ={np.count_nonzero(img_s)}",
+             transform=ax2.transAxes, color="white",
+             fontsize=9, va="top",
+             bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
-    ax3.imshow(I0[tsnap] + I1[tsnap] + I2[tsnap],
-               origin="lower", cmap="plasma",
+    # Fast
+    img_f = I0[tsnap] + I1[tsnap] + I2[tsnap]
+    ax3.imshow(img_f, origin="lower", cmap="plasma",
                extent=extent, vmin=0, vmax=VMAX)
     ax3.set_title("Fast-Light")
+    ax3.text(0.02, 0.95,
+             f"N={img_f.size}\nNZ={np.count_nonzero(img_f)}",
+             transform=ax3.transAxes, color="white",
+             fontsize=9, va="top",
+             bbox=dict(facecolor="black", alpha=0.6, pad=3))
 
-    # Curvas
+    # ============================================================
+    # CURVAS
+    # ============================================================
     ax4.plot(Time[:tsnap+1], LCb[:tsnap+1], label="Brisk")
     ax4.plot(Time[:tsnap+1], LCs[:tsnap+1], label="Slow")
     ax4.plot(Time[:tsnap+1], LCf[:tsnap+1], label="Fast")
@@ -129,13 +152,14 @@ for tsnap in range(snapshots):
     ax4.set_ylabel("Flux (normalized)")
     ax4.legend()
 
-    # Guardar frame
+    # ============================================================
+    # GUARDAR
+    # ============================================================
     fname = os.path.join(frames_dir, f"frame_{tsnap:04d}.png")
     plt.savefig(fname)
     plt.close(fig)
 
     images.append(imageio.imread(fname))
-
 # ============================================================
 # CREAR GIF
 # ============================================================
