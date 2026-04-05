@@ -68,6 +68,8 @@ I1=h5f['bghts1'][:]
 I2=h5f['bghts2'][:]
 h5f.close() 
 
+
+print("Starting light curve generation")
 # Light Curve Generation 
 LightCurve_SlowLight_0 = LightCurve(Is0)
 LightCurve_FastLight_0 = LightCurve(I0)

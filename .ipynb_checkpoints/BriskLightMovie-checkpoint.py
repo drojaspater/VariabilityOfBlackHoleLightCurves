@@ -116,11 +116,11 @@ t1-=fact
 t2-=fact
 
 ###Desplazamiento del tiempo para empezar en la mitad de la pelicula###
-fact2=xtend/2-np.nanmax(t0)
-
-t0+=fact2
-t1+=fact2
-t2+=fact2
+#fact2=xtend/2-np.nanmax(t0)
+#
+#t0+=fact2
+#t1+=fact2
+#t2+=fact2
 
 print("BriskLight calculation starts!")
 
@@ -153,44 +153,29 @@ def mp_worker(tsnap):
     ts0 = np.mod(t0 + tsnap, xtend)
     ts1 = np.mod(t1 + tsnap, xtend)
     ts2 = np.mod(t2 + tsnap, xtend)
-    
-    #lower0 = max(0, tsnap - widthleft0)
-    #upper0 = min(xtend, tsnap + widthright0)
-    #
-    #lower1 = max(0, tsnap - widthleft1)
-    #upper1 = min(xtend, tsnap + widthright1)
-    #
-    #lower2 = max(0, tsnap - widthleft2)
-    #upper2 = min(xtend, tsnap + widthright2)
 
-    lower0 = np.mod(left0 + tsnap, xtend)
-    upper0 = np.mod(right0 + tsnap, xtend)
+    left0_snap  = np.mod(left0 + tsnap, xtend)
+    right0_snap = np.mod(right0 + tsnap, xtend)
 
-    lower1 = np.mod(left1 + tsnap, xtend)
-    upper1 = np.mod(right1 + tsnap, xtend)
+    left1_snap  = np.mod(left1 + tsnap, xtend)
+    right1_snap = np.mod(right1 + tsnap, xtend)
 
-    lower2 = np.mod(left2 + tsnap, xtend)
-    upper2 = np.mod(right2 + tsnap, xtend)
+    left2_snap  = np.mod(left2 + tsnap, xtend)
+    right2_snap = np.mod(right2 + tsnap, xtend)
     
     i_bghts0 = obsint.brisk_light(
         supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
-        interpolated3_R, thetao,
-        lower0, 
-        upper0
+        interpolated3_R, thetao, left0_snap, right0_snap
     )
 
     i_bghts1 = obsint.brisk_light(
         supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
-        interpolated3_R, thetao,
-        lower1, 
-        upper1
+        interpolated3_R, thetao, left1_snap, right1_snap
     )
 
     i_bghts2 = obsint.brisk_light(
         supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
-        interpolated3_R, thetao,
-        lower2, 
-        upper2 
+        interpolated3_R, thetao, left2_snap, right2_snap
     )
 
     i_I0 = (i_bghts0).reshape(N0,N0).T
