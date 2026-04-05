@@ -33,7 +33,7 @@ h5f.close()
 
 
 # Importation of the Brisk-light movie 
-fimages= path_bl + "BriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+fimages= path_bl + "LCBriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
 Ib0=h5f['bghts0'][:]
@@ -51,10 +51,11 @@ I1=h5f['bghts1'][:]
 I2=h5f['bghts2'][:]
 h5f.close() 
 
-
+print("Starting light curve generation")
 LightCurve_BriskLight = LightCurve(Ib0,Ib1,Ib2)
 LightCurve_FastLight = LightCurve(I0,I1,I2)
 LightCurve_SlowLight = LightCurve(Is0,Is1,Is2)
+
 
 Time = np.linspace(i_tM,f_tM,snapshots)
 
@@ -97,7 +98,11 @@ VMIN = max(np.percentile(all_slow[all_slow > 0], 1), eps)
 # ============================================================
 # GENERACIÓN DE FRAMES
 # ============================================================
-for tsnap in range(snapshots):
+print("Starting frame pictures generation")
+
+step = 32  # 1 full resolución, 32 faster prube
+
+for tsnap in range(0, snapshots, step):
 
     fig = plt.figure(figsize=(12, 7))
     gs = GridSpec(2, 3, height_ratios=[1, 1.2])
@@ -179,3 +184,5 @@ for tsnap in range(snapshots):
 # CREAR GIF
 # ============================================================
 imageio.mimsave(gif_path, images, fps=15)
+
+print("The GIF of the black holes modes was made")
