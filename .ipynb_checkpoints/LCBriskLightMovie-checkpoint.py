@@ -142,7 +142,7 @@ I1s = []
 I2s = []
 
 ## Here we are desplaced the n lensing band to a past frame with the most importat contribution
-def mp_worker(tsnap):
+def MovieWorker(tsnap):
 
     #Time with the bigger contribution
     mode0_snap = np.mod(mode0 + tsnap, xtend)
