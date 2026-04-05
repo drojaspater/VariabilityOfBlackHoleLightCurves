@@ -40,7 +40,7 @@ else:
     print(f"File {filename} not found. Running raytracing.py...")
     subprocess.run(["python", "raytracing.py"])
     
-#subprocess.run(["python", "BriskLightMovie.py"])
+subprocess.run(["python", "LCBriskLightMovie.py"])
 subprocess.run(["python", "FastLightMovie.py"])
 subprocess.run(["python", "iMovies.py"])
 
@@ -63,7 +63,7 @@ h5f.close()
 
 
 # Importation of the Brisk-light movie 
-fimages= path_bl + "BriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+fimages= path_bl + "LCBriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
 Ib0=h5f['bghts0'][:]
@@ -81,6 +81,8 @@ I1=h5f['bghts1'][:]
 I2=h5f['bghts2'][:]
 h5f.close() 
 
+
+print("Starting light curve generation")
 # Light Curve Generation 
 LightCurve_BriskLight_0 = LightCurve(Ib0)
 LightCurve_FastLight_0 = LightCurve(I0)
@@ -134,7 +136,7 @@ df = pd.DataFrame({
     'SlowLight': LightCurve_SlowLight,
     'Time': Time})
 
-df_name = path_lc + 'ShorthalfTime_LightCurve_datas_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+df_name = path_lc + 'LCB_LightCurve_datas_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv'%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 df.to_csv(df_name, index=False)
 
 #df = pd.DataFrame({

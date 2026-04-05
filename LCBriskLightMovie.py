@@ -129,53 +129,40 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 
 interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
 
-# Calcular ancho para n=0
+# This ensures frame-by-frame temporal alignment
+t_frames = np.linspace(i_tM, f_tM, snapshots, endpoint=False)
+
 mode0, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
 mode1, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
 mode2, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
-
-#widthleft0  = np.abs(mode0-left0)
-#widthright0 = np.abs(right0-mode0)
-#widthleft1  = np.abs(mode1-left1)
-#widthright1 = np.abs(right1-mode1)
-#widthleft2  = np.abs(mode2-left2)
-#widthright2 = np.abs(right2-mode2)
-
-
 
 
 I0s = []
 I1s = []
 I2s = []
 
-
+## Here we are desplaced the n lensing band to a past frame with the most importat contribution
 def mp_worker(tsnap):
-    ts0 = np.mod(t0 + tsnap, xtend)
-    ts1 = np.mod(t1 + tsnap, xtend)
-    ts2 = np.mod(t2 + tsnap, xtend)
 
-    left0_snap  = np.mod(left0 + tsnap, xtend)
-    right0_snap = np.mod(right0 + tsnap, xtend)
+    #Time with the bigger contribution
+    mode0_snap = np.mod(mode0 + tsnap, xtend)
+    mode1_snap = np.mod(mode1 + tsnap, xtend)
+    mode2_snap = np.mod(mode2 + tsnap, xtend)
 
-    left1_snap  = np.mod(left1 + tsnap, xtend)
-    right1_snap = np.mod(right1 + tsnap, xtend)
-
-    left2_snap  = np.mod(left2 + tsnap, xtend)
-    right2_snap = np.mod(right2 + tsnap, xtend)
     
-    i_bghts0 = obsint.brisk_light(
-        supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, ts0,
-        interpolated3_R, thetao, left0_snap, right0_snap
+    i_bghts0 = obsint.fast_light(
+        supergrid0, mask0, sign0, spin_case, isco, rs0, phi0, mode0_snap,
+        interpolated3_R, thetao
     )
 
-    i_bghts1 = obsint.brisk_light(
-        supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, ts1,
-        interpolated3_R, thetao, left1_snap, right1_snap
+    i_bghts1 = obsint.fast_light(
+        supergrid1, mask1, sign1, spin_case, isco, rs1, phi1, mode1_snap,
+        interpolated3_R, thetao
     )
 
-    i_bghts2 = obsint.brisk_light(
-        supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, ts2,
-        interpolated3_R, thetao, left2_snap, right2_snap
+    i_bghts2 = obsint.fast_light(
+        supergrid2, mask2, sign2, spin_case, isco, rs2, phi2, mode2_snap,
+        interpolated3_R, thetao
     )
 
     i_I0 = (i_bghts0).reshape(N0,N0).T
@@ -186,24 +173,21 @@ def mp_worker(tsnap):
     return(i_I0,i_I1,i_I2)
 
 
-###Opción for Windows
-def main():
-    p = get_context("spawn").Pool(nthreads)
-    I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
-    filename=path_bl+"BriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
+# Loop over SAME time grid as slow-light
+for tobs in t_frames:
+    i0, i1, i2 = MovieWorker(tobs)
 
-    h5f = h5py.File(filename, 'w')
-    h5f.create_dataset('bghts0', data=np.array(I0s))
-    h5f.create_dataset('bghts1', data=np.array(I1s))
-    h5f.create_dataset('bghts2', data=np.array(I2s))
-    h5f.create_dataset('tc', data=np.array([timeconversion]))
-    h5f.create_dataset('limits', data=np.array([limits]))
+    I0s.append(i0)
+    I1s.append(i1)
+    I2s.append(i2)
 
-    print(h5f['bghts0'])
-    print("Images ",filename," created.\n")
-    h5f.close()
-    p.close()
-    # Aquí puedes agregar lo que quieras hacer con I0s, I1s, I2s
+filename=path_bl+"LCBriskLight_Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 
-if __name__ == '__main__':
-    main()
+
+h5f = h5py.File(filename, 'w')
+h5f.create_dataset('bghts0', data=np.array(I0s))
+h5f.create_dataset('bghts1', data=np.array(I1s))
+h5f.create_dataset('bghts2', data=np.array(I2s))
+
+print("Images ",filename," created.\n")
+h5f.close()
