@@ -175,7 +175,7 @@ for tsnap in range(0, snapshots, step):
     # GUARDAR FRAME
     # ============================================================
     fname = os.path.join(frames_dir, f"frame_{tsnap:04d}.png")
-    plt.savefig(fname, dpi=150, bbox_inches="tight")
+    plt.savefig(fname, dpi=150)
     plt.close(fig)
 
     images.append(imageio.imread(fname))

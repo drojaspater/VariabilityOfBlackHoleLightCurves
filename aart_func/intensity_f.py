@@ -238,34 +238,74 @@ def freedman_diaconis_bins(data):
     
     return n_bins
 #########################################################################################
-def Mask_FilterTime(T,porcentage):
+
+def quantize_ts_by_quantiles_median(ts, K):
     """
-    Filter of the time data wth higher frequency and Create a mask for 
-    data falling into the selected containers
-    bins: number of bins of the distribution
-    T: Time coordinate data"""
-    Bins = freedman_diaconis_bins(T)
-    # frequency per bin 
-    hist, bins = np.histogram(T, bins=Bins) 
-    
-    # Here we search for the most frequent bin
-    n_top_bins = max(1, int(len(hist) * porcentage)) #Numbers of bins with the higher frequency
-    #Wee choose the index of bins with the higher frequency
-    top_bins_indices = heapq.nlargest(n_top_bins, range(len(hist)), key=lambda i: hist[i])
-    
-    mascara = np.zeros(len(T), dtype=bool)
-    
-    for idx in  top_bins_indices:
-        bin_min = bins[idx]
-        bin_max = bins[idx + 1]
-        
-        #Create the mask
-        if idx == len(bins) - 2:  
-            mascara |= (T >= bin_min) & (T <= bin_max)
-        else:
-            mascara |= (T >= bin_min) & (T < bin_max)
-            
-    return mascara
+    Quantize a 1D time array into K quantile-based groups and replace
+    each group by its median value. NaNs are preserved as NaN.
+    :param ts array_like 1D: array of emission times. May contain NaN values.
+    :param K  int: Number of quantile groups.
+
+    Returns
+    :paramts_q ndarray : Quantized array in the original ordering of ts. NaN entries remain NaN.
+    """
+    ts = np.asarray(ts)
+
+    # Basic input validation
+    if ts.ndim != 1:
+        raise ValueError("ts must be a 1D array.")
+    if len(ts) == 0:
+        raise ValueError("ts cannot be empty.")
+    if K < 1:
+        raise ValueError("K must be >= 1.")
+
+    # Initialize output as a float copy so NaNs are preserved naturally
+    ts_q = ts.astype(float, copy=True)
+
+    # Select only finite values for quantization
+    finite_mask = np.isfinite(ts)
+    n_finite = np.count_nonzero(finite_mask)
+
+    # If there are no finite values, return the array unchanged
+    if n_finite == 0:
+        return ts_q
+
+    # Work only with valid finite entries
+    ts_valid = ts[finite_mask]
+
+    # Effective number of bins cannot exceed the number of valid samples
+    K_eff = min(K, n_finite)
+
+    # Sort valid times so we can split them into quantile groups
+    perm = np.argsort(ts_valid)
+    ts_sorted = ts_valid[perm]
+
+    # Compute group boundaries in index space
+    cuts = np.linspace(0, n_finite, K_eff + 1, dtype=int)
+
+    # Store quantized values in sorted order
+    ts_q_sorted = np.empty(n_finite, dtype=float)
+
+    # Replace each quantile group by its median
+    for k in range(K_eff):
+        i0 = cuts[k]
+        i1 = cuts[k + 1]
+
+        # Skip empty groups just in case
+        if i1 <= i0:
+            continue
+
+        med = np.median(ts_sorted[i0:i1])
+        ts_q_sorted[i0:i1] = med
+
+    # Undo the sorting permutation
+    ts_q_valid = np.empty(n_finite, dtype=float)
+    ts_q_valid[perm] = ts_q_sorted
+
+    # Put quantized finite values back into their original positions
+    ts_q[finite_mask] = ts_q_valid
+
+    return ts_q
 #########################################################################################
 def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     """
@@ -419,7 +459,7 @@ def periodic_interval_mask(t, left, right):
         return (t >= left) | (t <= right)
 
 
-def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
+def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, K):
     """
     Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
     (Eq. 50 P1)
@@ -434,57 +474,35 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     :param ts: time of emission at the source
     :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
     :param thetao: observer inclination
-    :param left_s: left boundary of the modal HDI
-    :param right_s: right boundary of the modal HDI 
+    :param K:  Number of quantile groups. {1 = One representative value, len(ts) = slow-light mode}
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
 
-    # Restrict everything to the active lensing-band pixels
-    alpha = grid[:, 0][mask]
-    beta = grid[:, 1][mask]
+    alpha = grid[:,0][mask]
+    beta = grid[:,1][mask]
     rs = rs[mask]
     th = th[mask]
     ts = ts[mask]
+
+    ts_reduce = quantize_ts_by_quantiles_median(ts, K)
+    
+    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
+    brightness = np.zeros(rs.shape[0])
     redshift_sign = redshift_sign[mask]
+    
+    x_aux=rs*np.cos(th)
+    y_aux=rs*np.sin(th)
 
-    lamb, eta = rt.conserved_quantities(alpha, beta, thetao, a)
+    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts_reduce[rs>=isco],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
+    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts_reduce[rs<isco],x_aux[rs<isco],y_aux[rs<isco]]).T)
 
-    brightness = np.zeros_like(rs, dtype=float)
-
-    # Temporal selection
-    time_mask = periodic_interval_mask(ts, left_s, right_s)
-
-    # Final masks: only interpolate where both the region and time are valid
-    disk_mask = (rs >= isco) & time_mask 
-    gas_mask = (rs < isco) & time_mask 
-
-    if np.any(disk_mask):
-        x_disk = rs[disk_mask] * np.cos(th[disk_mask])
-        y_disk = rs[disk_mask] * np.sin(th[disk_mask])
-
-        interp_disk = interpolation(np.column_stack((ts[disk_mask], x_disk, y_disk)))
-
-        g_disk = gDisk(rs[disk_mask],a,redshift_sign[disk_mask],lamb[disk_mask],eta[disk_mask]) ** gfactor
-
-        brightness[disk_mask] = g_disk * interp_disk
-
-    if np.any(gas_mask):
-        x_gas = rs[gas_mask] * np.cos(th[gas_mask])
-        y_gas = rs[gas_mask] * np.sin(th[gas_mask])
-
-        interp_gas = interpolation(np.column_stack((ts[gas_mask], x_gas, y_gas)))
-
-        g_gas = gGas(rs[gas_mask],a,redshift_sign[gas_mask],lamb[gas_mask],eta[gas_mask]) ** gfactor
-
-        brightness[gas_mask] = g_gas * interp_gas
-
-    # Horizon cutoff
-    r_p = 1 + np.sqrt(1 - a**2)
-    brightness[rs <= r_p] = 0
-    # Rebuild full image array
-    I = np.zeros(mask.shape, dtype=float)
+    r_p = 1+np.sqrt(1-a**2)
+    brightness[rs<=r_p] = 0
+    
+    I = np.zeros(mask.shape) 
     I[mask] = brightness
+    return(I)
 
     return I
 
@@ -530,63 +548,6 @@ def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     I[mask] = brightness
     return(I)
     
-def zoom_slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao,zoom):
-    """
-    Calculate the black hole image including the time delay due to lensing and geometric effect
-    (Eq. 50 P1)
-
-    :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
-    :param mask: mask out the lensing band, see lb_f.py for detail
-    :param redshift_sign: sign of the redshift
-    :param a: black hole spin
-    :param isco: radius of the inner-most stable circular orbit
-    :param rs: source radius
-    :param th: source angle, polar coordinate
-    :param ts: time of emission at the source
-    :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
-    :param thetao: observer inclination
-    :param zoom: porcentage of interest data for the zoom in the BH
-
-    :return: image of a lensed equitorial source with only radial dependence. 
-    """
-    #######################################
-    # without nan
-    valid_mask = np.isfinite(ts)
-    
-    # time filtered 
-    ts_valid = ts[valid_mask]
-    time_mask_valid = Mask_FilterTime(ts_valid,zoom)
-    
-    # mask reconstruction
-    time_mask = np.zeros_like(ts, dtype=bool)
-    time_mask[valid_mask] = time_mask_valid
-    
-    # final mask 
-    combined_mask = mask & time_mask
-    #######################################
-    
-    alpha = grid[:,0][combined_mask]
-    beta = grid[:,1][combined_mask]
-    rs = rs[combined_mask]
-    th = th[combined_mask]
-    ts = ts[combined_mask]
-    
-    lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
-    brightness = np.zeros(rs.shape[0])
-    redshift_sign = redshift_sign[combined_mask]
-    
-    x_aux=rs*np.cos(th)
-    y_aux=rs*np.sin(th)
-
-    brightness[rs>=isco]= gDisk(rs[rs>=isco],a,redshift_sign[rs>=isco],lamb[rs>=isco],eta[rs>=isco])**gfactor*interpolation(np.vstack([ts[rs>=isco],x_aux[rs>=isco],y_aux[rs>=isco]]).T)
-    brightness[rs<isco]= gGas(rs[rs<isco],a,redshift_sign[rs<isco],lamb[rs<isco],eta[rs<isco])**gfactor*interpolation(np.vstack([ts[rs<isco],x_aux[rs<isco],y_aux[rs<isco]]).T)
-
-    r_p = 1+np.sqrt(1-a**2)
-    brightness[rs<=r_p] = 0
-    
-    I = np.zeros(mask.shape) 
-    I[combined_mask] = brightness
-    return(I)
 
 def br(supergrid0,mask0,N0,rs0,sign0,supergrid1,mask1,N1,rs1,sign1,supergrid2,mask2,N2,rs2,sign2):
     """

@@ -31,17 +31,14 @@ h5f = h5py.File(fnbands,'r')
 
 rs0=h5f['rs0'][:]
 sign0=h5f['sign0'][:]
-t0=h5f['t0'][:]
 phi0=h5f['phi0'][:]
 
 rs1=h5f['rs1'][:]
 sign1=h5f['sign1'][:]
-t1=h5f['t1'][:]
 phi1=h5f['phi1'][:]
 
 rs2=h5f['rs2'][:]
 sign2=h5f['sign2'][:]
-t2=h5f['t2'][:]
 phi2=h5f['phi2'][:]
 
 h5f.close()
@@ -112,19 +109,6 @@ x2 = np.linspace(x2start, x2end, nj)
 times = np.linspace(xtstart, xtend, nt) 
 
 h5py.File.close(hf)
-
-fact=-(D_obs+2*np.log(D_obs))
-
-t0-=fact
-t1-=fact
-t2-=fact
-
-###Desplazamiento del tiempo para empezar en la mitad de la pelicula###
-#fact2=xtend/2-np.nanmax(t0)
-#
-#t0+=fact2
-#t1+=fact2
-#t2+=fact2
 
 print("FastLight calculation starts!")
 
