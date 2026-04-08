@@ -203,109 +203,34 @@ def bright_radial(grid,mask,redshift_sign,a,rs,isco,thetao):
 
 #########################################################################################
 #########################################################################################
-##########################################################################################
-def freedman_diaconis_bins(data):
-    """
-    Calculates the optimal number of bins using the Freedman-Diaconis rule.
-    Ideal for approximately normal distributions with anomalies.
-    :param data: array-like
-    :param n_bins: int
-    
-    :return: Optimal number of bins for histogram
-    """
-    data = np.asarray(data)
-    n = len(data)
-    
-    # Data range
-    data_range = data.max() - data.min()
-    
-    # Interquartile range (robust to outliers)
-    Q1 = np.percentile(data, 25)
-    Q3 = np.percentile(data, 75)
-    IQR = Q3 - Q1
-    # Avoid division by zero
-    if IQR == 0:
-        IQR = data_range / 10  # fallback
-    
-    # Bin width according to Freedman-Diaconis
-    bin_width = 2 * IQR * n ** (-1/3)
-    
-    # Number of bins
-    n_bins = max(1, int(np.ceil(data_range / bin_width)))
-    
-    # Upper limit to avoid excessive bins
-    n_bins = min(n_bins, 500)
-    
-    return n_bins
 #########################################################################################
 
-def quantize_ts_by_quantiles_median(ts, K):
+def clip_ts_to_interval(ts, left_s, right_s):
     """
-    Quantize a 1D time array into K quantile-based groups and replace
-    each group by its median value. NaNs are preserved as NaN.
+    Clip finite values of a 1D time array to the interval [left_s, right_s].
+    Non-finite values are preserved.
     :param ts array_like 1D: array of emission times. May contain NaN values.
-    :param K  int: Number of quantile groups.
+    :param left_s: left boundary of the modal HDI
+    :param right_s: right boundary of the modal HDI 
 
     Returns
-    :paramts_q ndarray : Quantized array in the original ordering of ts. NaN entries remain NaN.
+    :param ts_out ndarray : Array with data in the range [left_s, right_s]
     """
-    ts = np.asarray(ts)
+    ts = np.asarray(ts, dtype=float)
 
-    # Basic input validation
     if ts.ndim != 1:
         raise ValueError("ts must be a 1D array.")
-    if len(ts) == 0:
+    if ts.size == 0:
         raise ValueError("ts cannot be empty.")
-    if K < 1:
-        raise ValueError("K must be >= 1.")
+    if right_s < left_s:
+        raise ValueError("right_s must be >= left_s.")
 
-    # Initialize output as a float copy so NaNs are preserved naturally
-    ts_q = ts.astype(float, copy=True)
+    ts_out = ts.copy()
+    finite_mask = np.isfinite(ts_out)
+    ts_out[finite_mask] = np.clip(ts_out[finite_mask], left_s, right_s)
 
-    # Select only finite values for quantization
-    finite_mask = np.isfinite(ts)
-    n_finite = np.count_nonzero(finite_mask)
-
-    # If there are no finite values, return the array unchanged
-    if n_finite == 0:
-        return ts_q
-
-    # Work only with valid finite entries
-    ts_valid = ts[finite_mask]
-
-    # Effective number of bins cannot exceed the number of valid samples
-    K_eff = min(K, n_finite)
-
-    # Sort valid times so we can split them into quantile groups
-    perm = np.argsort(ts_valid)
-    ts_sorted = ts_valid[perm]
-
-    # Compute group boundaries in index space
-    cuts = np.linspace(0, n_finite, K_eff + 1, dtype=int)
-
-    # Store quantized values in sorted order
-    ts_q_sorted = np.empty(n_finite, dtype=float)
-
-    # Replace each quantile group by its median
-    for k in range(K_eff):
-        i0 = cuts[k]
-        i1 = cuts[k + 1]
-
-        # Skip empty groups just in case
-        if i1 <= i0:
-            continue
-
-        med = np.median(ts_sorted[i0:i1])
-        ts_q_sorted[i0:i1] = med
-
-    # Undo the sorting permutation
-    ts_q_valid = np.empty(n_finite, dtype=float)
-    ts_q_valid[perm] = ts_q_sorted
-
-    # Put quantized finite values back into their original positions
-    ts_q[finite_mask] = ts_q_valid
-
-    return ts_q
+    return ts_out
+    
 #########################################################################################
 def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     """
@@ -317,6 +242,8 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     :param data: One-dimensional sample of data points.
     :param p: Target probability mass to be enclosed by the modal HDI. Must be between 0 and 1.
     :param gridsize: Number of grid points used to evaluate the KDE between the minimum and maximum of the data.
+    :param pad_factor: Factor that multiplies the sample standard deviation to define how much
+                   the KDE evaluation grid is extended beyond the data range on both sides.
     
     :returns: A tuple containing:
               - mode: location of the KDE mode
@@ -333,8 +260,8 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
         raise ValueError("No hay datos finitos.")
     if data_finite.size < 2:
         raise ValueError("Se necesitan al menos 2 datos para gaussian_kde.")
-    if not (0 < p <= 1):
-        raise ValueError("p debe estar en el intervalo (0, 1].")
+    if not (0 <= p < 1):
+        raise ValueError("p debe estar en el intervalo [0, 1).")
 
     # Caso degenerado: todos los valores iguales o casi iguales
     if np.allclose(data_finite, data_finite[0]):
@@ -452,17 +379,10 @@ def fast_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):
     I[mask] = brightness
     return(I)
 
-def periodic_interval_mask(t, left, right):
-    if left <= right:
-        return (t >= left) & (t <= right)
-    else:
-        return (t >= left) | (t <= right)
 
-
-def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, K):
+def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, thetao, left_s, right_s):
     """
-    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source
-    (Eq. 50 P1)
+    Calculate the black hole image including the time delay due to lensing and geometric effect but with a restriction in the source to the range [left_s, right_s]
 
     :param grid: alpha and beta grid on the observer plane on which we evaluate the observables
     :param mask: mask out the lensing band, see lb_f.py for detail
@@ -474,7 +394,8 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     :param ts: time of emission at the source
     :param interpolation: a time series of 2 dimensional brightness function of the source, 3d interpolation object
     :param thetao: observer inclination
-    :param K:  Number of quantile groups. {1 = One representative value, len(ts) = slow-light mode}
+    :param left_s: left boundary of the modal HDI
+    :param right_s: right boundary of the modal HDI 
 
     :return: image of a lensed equitorial source with only radial dependence. 
     """
@@ -485,7 +406,7 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     th = th[mask]
     ts = ts[mask]
 
-    ts_reduce = quantize_ts_by_quantiles_median(ts, K)
+    ts_reduce = clip_ts_to_interval(ts, left_s,right_s)
     
     lamb,eta = rt.conserved_quantities(alpha,beta,thetao,a)
     brightness = np.zeros(rs.shape[0])
@@ -503,8 +424,6 @@ def brisk_light(grid, mask, redshift_sign, a, isco, rs, th, ts,interpolation, th
     I = np.zeros(mask.shape) 
     I[mask] = brightness
     return(I)
-
-    return I
 
 #calculate the observed brightness for an arbitrary, evolving profile, passed in as the interpolation object
 def slow_light(grid,mask,redshift_sign,a,isco,rs,th,ts,interpolation,thetao):

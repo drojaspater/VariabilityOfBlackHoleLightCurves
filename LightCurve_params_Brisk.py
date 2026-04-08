@@ -4,7 +4,7 @@ import textwrap
 
 
 #Nn = [1,2,8,32,64]
-P = [16]
+P = [0.2]
 Nn = [1]
 I_Case = [17]
 #combinations_name = [(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000,0.94)]
@@ -32,7 +32,7 @@ for combo in combinations:
         print("\nThanks for using AART")
         print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
-        p_brisk = 250000/{p_brisk}
+        p_brisk = {p_brisk}
         #BH's Spin
         spin_case={spin_case}
         #Observer's inclination
