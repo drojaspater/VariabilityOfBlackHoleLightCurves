@@ -333,7 +333,7 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
         raise ValueError("No hay datos finitos.")
     if data_finite.size < 2:
         raise ValueError("Se necesitan al menos 2 datos para gaussian_kde.")
-    if not (0 < p <= 1):
+    if not (0 <= p <= 1):
         raise ValueError("p debe estar en el intervalo (0, 1].")
 
     # Caso degenerado: todos los valores iguales o casi iguales

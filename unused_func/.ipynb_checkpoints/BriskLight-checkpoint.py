@@ -27,6 +27,39 @@ def Mask_FilterTime(T,porcentage):
             
     return mascara
 
+def freedman_diaconis_bins(data):
+    """
+    Calculates the optimal number of bins using the Freedman-Diaconis rule.
+    Ideal for approximately normal distributions with anomalies.
+    :param data: array-like
+    :param n_bins: int
+    
+    :return: Optimal number of bins for histogram
+    """
+    data = np.asarray(data)
+    n = len(data)
+    
+    # Data range
+    data_range = data.max() - data.min()
+    
+    # Interquartile range (robust to outliers)
+    Q1 = np.percentile(data, 25)
+    Q3 = np.percentile(data, 75)
+    IQR = Q3 - Q1
+    # Avoid division by zero
+    if IQR == 0:
+        IQR = data_range / 10  # fallback
+    
+    # Bin width according to Freedman-Diaconis
+    bin_width = 2 * IQR * n ** (-1/3)
+    
+    # Number of bins
+    n_bins = max(1, int(np.ceil(data_range / bin_width)))
+    
+    # Upper limit to avoid excessive bins
+    n_bins = min(n_bins, 500)
+    
+    return n_bins
 
 def periodic_interval_mask(t, left, right):
     if left <= right:
