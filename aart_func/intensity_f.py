@@ -207,14 +207,26 @@ def bright_radial(grid,mask,redshift_sign,a,rs,isco,thetao):
 
 def clip_ts_to_interval(ts, left_s, right_s):
     """
-    Clip finite values of a 1D time array to the interval [left_s, right_s].
-    Non-finite values are preserved.
-    :param ts array_like 1D: array of emission times. May contain NaN values.
-    :param left_s: left boundary of the modal HDI
-    :param right_s: right boundary of the modal HDI 
+    Clip finite values of a 1D time array to an interval on a periodic domain.
 
-    Returns
-    :param ts_out ndarray : Array with data in the range [left_s, right_s]
+    Case 1: left_s <= right_s
+        Valid interval is [left_s, right_s].
+        Values below are mapped to left_s, values above to right_s.
+
+    Case 2: left_s > right_s
+        The valid interval wraps around the period boundary:
+            [left_s, T) U [0, right_s]
+        Then the excluded gap is (right_s, left_s).
+        Values inside that gap are mapped to the nearest boundary,
+        using the midpoint of the gap.
+
+    Non-finite values (NaN, inf, -inf) are preserved.
+
+    :param ts array_like, 1D: Array of emission times.
+    :param left_s float: Left boundary.
+    :param right_s float: Right boundary.
+
+    :Returns ts_out : ndarray Output array with clipped values.
     """
     ts = np.asarray(ts, dtype=float)
 
@@ -222,12 +234,29 @@ def clip_ts_to_interval(ts, left_s, right_s):
         raise ValueError("ts must be a 1D array.")
     if ts.size == 0:
         raise ValueError("ts cannot be empty.")
-    if right_s < left_s:
-        raise ValueError("right_s must be >= left_s.")
 
     ts_out = ts.copy()
     finite_mask = np.isfinite(ts_out)
-    ts_out[finite_mask] = np.clip(ts_out[finite_mask], left_s, right_s)
+
+    if left_s <= right_s:
+        # Standard interval: [left_s, right_s]
+        ts_out[finite_mask] = np.clip(ts_out[finite_mask], left_s, right_s)
+
+    else:
+        # Wrapped interval: [left_s, T) U [0, right_s]
+        # Gap to collapse: (right_s, left_s)
+        center = 0.5 * (left_s + right_s)
+
+        gap_mask = finite_mask & (ts_out > right_s) & (ts_out < left_s)
+
+        left_half_mask = gap_mask & (ts_out > center)
+        right_half_mask = gap_mask & (ts_out < center)
+
+        ts_out[left_half_mask] = left_s
+        ts_out[right_half_mask] = right_s
+
+        # If a value is exactly equal to center, choose one side consistently.
+        ts_out[gap_mask & (ts_out == center)] = right_s
 
     return ts_out
     
