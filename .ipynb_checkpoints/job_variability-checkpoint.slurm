@@ -21,5 +21,6 @@ echo "Fecha: $(date)"
 echo "Memoria total: $(grep MemTotal /proc/meminfo)"
 
 python -u LightCurve_params_Brisk.py
+python -u GifGeneration.py
 
 echo "El trabajo terminó en $(date)"       
