@@ -358,7 +358,7 @@ out_dir = "plots_comparison"
 os.makedirs(out_dir, exist_ok=True)
 
 # Guardar la figura (sin mostrarla para optimizar en cluster)
-fname = os.path.join(path_im, f"comparison_triplets_tsnap_{tsnap:04d}_p{p_brisk}.png")
+fname = os.path.join(path_im, f"comparison_triplets_tsnap_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
 fig.savefig(fname, dpi=300, bbox_inches='tight', facecolor='white')
 plt.close(fig)
 
