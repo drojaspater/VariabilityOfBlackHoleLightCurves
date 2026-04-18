@@ -200,9 +200,9 @@ print("🚀 Iniciando comparación de imágenes - Versión Cluster")
 
 # IMPORTANTE: Ajusta estos nombres de variables según tu archivo
 # Si tus datos están en otro formato, modifica esta sección
-img_s = Is0[tsnap] + Is1[tsnap] + Is2[tsnap]  # Slow
-img_b = Ib0[tsnap] + Ib1[tsnap] + Ib2[tsnap]  # Brisk
-img_f = I0[tsnap]  + I1[tsnap]  + I2[tsnap]   # Fast
+img_s = Is0 + Is1 + Is2  # Slow
+img_b = Ib0 + Ib1 + Ib2 # Brisk
+img_f = I0  + I1  + I2   # Fast
 
 print(f"✅ Imágenes cargadas - Snapshot t={tsnap}")
 print(f"   Dimensiones: {img_s.shape}")
