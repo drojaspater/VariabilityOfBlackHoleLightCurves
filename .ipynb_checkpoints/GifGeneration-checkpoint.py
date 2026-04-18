@@ -16,15 +16,15 @@ plt.rcParams['text.usetex'] = False
 #        I_total += I_2
 #    light_curve = np.sum(I_total, axis=(1, 2))
 #    return light_curve
-
+tsnap = 500
         
 # Importation of the slow-light movie 
 fimages= path_sl + "Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
-Is0=h5f['bghts0'][:]
-Is1=h5f['bghts1'][:]
-Is2=h5f['bghts2'][:]
+Is0=h5f['bghts0'][tsnap]
+Is1=h5f['bghts1'][tsnap]
+Is2=h5f['bghts2'][tsnap]
 h5f.close()
 
 
@@ -32,9 +32,9 @@ h5f.close()
 fimages= path_bl + "BriskLight_p%s_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(p_brisk,dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
-Ib0=h5f['bghts0'][:]
-Ib1=h5f['bghts1'][:]
-Ib2=h5f['bghts2'][:]
+Ib0=h5f['bghts0'][tsnap]
+Ib1=h5f['bghts1'][tsnap]
+Ib2=h5f['bghts2'][tsnap]
 h5f.close()
 
 # Importation of the fast-light movie
@@ -42,9 +42,9 @@ h5f.close()
 fimages= path_fl + "FastLight_Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
 h5f = h5py.File(fimages,'r')
-I0=h5f['bghts0'][:]
-I1=h5f['bghts1'][:]
-I2=h5f['bghts2'][:]
+I0=h5f['bghts0'][tsnap]
+I1=h5f['bghts1'][tsnap]
+I2=h5f['bghts2'][tsnap]
 h5f.close() 
 
 #print("Starting light curve generation")
@@ -196,7 +196,7 @@ print("🚀 Iniciando comparación de imágenes - Versión Cluster")
 # ============================================================
 # SNAPSHOT - CARGAR TUS DATOS REALES
 # ============================================================
-tsnap = 500
+
 
 # IMPORTANTE: Ajusta estos nombres de variables según tu archivo
 # Si tus datos están en otro formato, modifica esta sección
