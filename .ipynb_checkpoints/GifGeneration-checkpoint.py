@@ -17,7 +17,9 @@ plt.rcParams['text.usetex'] = False
 #    light_curve = np.sum(I_total, axis=(1, 2))
 #    return light_curve
 tsnap = 500
-        
+
+
+
 # Importation of the slow-light movie 
 fimages= path_sl + "Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 print("Reading file: ",fimages)
@@ -191,7 +193,7 @@ from matplotlib.colors import LogNorm
 #print("The GIF of the black holes modes was made")
 #
 
-print("🚀 Iniciando comparación de imágenes - Versión Cluster")
+print("Starting Picture comparation")
 
 # ============================================================
 # SNAPSHOT - CARGAR TUS DATOS REALES
@@ -200,12 +202,12 @@ print("🚀 Iniciando comparación de imágenes - Versión Cluster")
 
 # IMPORTANTE: Ajusta estos nombres de variables según tu archivo
 # Si tus datos están en otro formato, modifica esta sección
-img_s = Is0 + Is1 + Is2  # Slow
-img_b = Ib0 + Ib1 + Ib2 # Brisk
-img_f = I0  + I1  + I2   # Fast
+img_s = Is0 #+ Is1 + Is2  # Slow
+img_b = Ib0 #+ Ib1 + Ib2 # Brisk
+img_f = I0  #+ I1  + I2   # Fast
 
-print(f"✅ Imágenes cargadas - Snapshot t={tsnap}")
-print(f"   Dimensiones: {img_s.shape}")
+print(f"The images was created - Snapshot t={tsnap}")
+print(f"   Dimension: {img_s.shape}")
 
 # ============================================================
 # FUNCIÓN: CALCULA NMSE GLOBAL
@@ -220,10 +222,10 @@ def calculate_nmse(img_a, img_b):
 # ============================================================
 # CALCULAR NMSE PARA CADA PAR
 # ============================================================
-print("📊 Calculando NMSE...")
+print("NMSE Calculating...")
 nmse_sf = calculate_nmse(img_s, img_f)  # Slow vs Fast
 nmse_sb = calculate_nmse(img_s, img_b)  # Slow vs Brisk
-nmse_fb = calculate_nmse(img_f, img_b)  # Fast vs Brisk
+nmse_fb = calculate_nmse(img_b,img_f)  # Fast vs Brisk
 
 print(f"   Slow vs Fast:  {nmse_sf:.3e}")
 print(f"   Slow vs Brisk: {nmse_sb:.3e}")
@@ -232,7 +234,6 @@ print(f"   Fast vs Brisk: {nmse_fb:.3e}")
 # ============================================================
 # MAPAS DE DIFERENCIA (para visualizar)
 # ============================================================
-print("🎨 Generando mapas de diferencia...")
 diff_sf = (img_s - img_f)**2
 diff_sb = (img_s - img_b)**2
 diff_fb = (img_f - img_b)**2
@@ -250,7 +251,6 @@ else:
 # ============================================================
 # ESCALA PARA IMÁGENES FÍSICAS
 # ============================================================
-print("📏 Ajustando escalas...")
 all_imgs = np.concatenate([img_s.ravel(), img_f.ravel(), img_b.ravel()])
 positive_mask = all_imgs > 0
 VMAX = np.percentile(all_imgs, 99.5)
@@ -262,12 +262,11 @@ VMIN = max(np.percentile(all_imgs[positive_mask], 1), eps)
 # EXTENT (ajusta según tus coordenadas)
 # ============================================================
 # Si tienes coordenadas específicas, modifica esta línea
-extent = [-12, 12, -12, 12]  # [alpha_min, alpha_max, beta_min, beta_max]
+extent = [12, 12, 12, 12]  # [alpha_min, alpha_max, beta_min, beta_max]
 
 # ============================================================
 # CREAR FIGURA 3x3
 # ============================================================
-print("🖼️ Generando figura...")
 fig, axes = plt.subplots(3, 3, figsize=(13, 11))
 
 # FILA 1: Slow | Fast | Diferencia
@@ -358,13 +357,13 @@ out_dir = "plots_comparison"
 os.makedirs(out_dir, exist_ok=True)
 
 # Guardar la figura (sin mostrarla para optimizar en cluster)
-fname = os.path.join(path_im, f"comparison_triplets_tsnap_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
+fname = os.path.join(path_im, f"comparison_triplets_tsnap_n0_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
 fig.savefig(fname, dpi=300, bbox_inches='tight', facecolor='white')
 plt.close(fig)
 
-print(f"\n✅ FIGURA GUARDADA: {fname}")
+print(f"\n Picture created in : {fname}")
 print("="*50)
-print("RESUMEN DE MÉTRICAS NMSE:")
+print("NMSE metric summery:")
 print(f"   Slow vs Fast:  {nmse_sf:.6e}")
 print(f"   Slow vs Brisk: {nmse_sb:.6e}")
 print(f"   Fast vs Brisk: {nmse_fb:.6e}")
