@@ -16,8 +16,54 @@ plt.rcParams['text.usetex'] = False
 #        I_total += I_2
 #    light_curve = np.sum(I_total, axis=(1, 2))
 #    return light_curve
+
 tsnap = 500
 
+fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+
+print("Reading file: ",fnbands)
+
+h5f = h5py.File(fnbands,'r')
+
+supergrid0=h5f['grid0'][:]
+mask0=h5f['mask0'][:]
+N0=int(h5f["N0"][0])
+lim0=int(h5f["lim0"][0])
+
+supergrid1=h5f['grid1'][:]
+mask1=h5f['mask1'][:]
+N1=int(h5f["N1"][0])
+lim1=int(h5f["lim1"][0])
+
+supergrid2=h5f['grid2'][:]
+mask2=h5f['mask2'][:]
+N2=int(h5f["N2"][0])
+lim2=int(h5f["lim2"][0])
+
+h5f.close()
+
+fnbands=path_rt+"Rays_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
+
+print("Reading file: ",fnbands)
+
+h5f = h5py.File(fnbands,'r')
+
+rs0=h5f['rs0'][:]
+sign0=h5f['sign0'][:]
+t0=h5f['t0'][:]
+phi0=h5f['phi0'][:]
+
+rs1=h5f['rs1'][:]
+sign1=h5f['sign1'][:]
+t1=h5f['t1'][:]
+phi1=h5f['phi1'][:]
+
+rs2=h5f['rs2'][:]
+sign2=h5f['sign2'][:]
+t2=h5f['t2'][:]
+phi2=h5f['phi2'][:]
+
+h5f.close()
 
 
 # Importation of the slow-light movie 
@@ -196,12 +242,9 @@ from matplotlib.colors import LogNorm
 print("Starting Picture comparation")
 
 # ============================================================
-# SNAPSHOT - CARGAR TUS DATOS REALES
+# SNAPSHOT 
 # ============================================================
 
-
-# IMPORTANTE: Ajusta estos nombres de variables según tu archivo
-# Si tus datos están en otro formato, modifica esta sección
 img_s = Is0 #+ Is1 + Is2  # Slow
 img_b = Ib0 #+ Ib1 + Ib2 # Brisk
 img_f = I0  #+ I1  + I2   # Fast
@@ -210,7 +253,7 @@ print(f"The images was created - Snapshot t={tsnap}")
 print(f"   Dimension: {img_s.shape}")
 
 # ============================================================
-# FUNCIÓN: CALCULA NMSE GLOBAL
+# FUNTION: NMSE 
 # ============================================================
 def calculate_nmse(img_a, img_b):
     """Calcula NMSE global: sum((a-b)^2) / sum(a^2)"""
@@ -220,7 +263,7 @@ def calculate_nmse(img_a, img_b):
     return np.sum((img_a - img_b)**2) / denominador
 
 # ============================================================
-# CALCULAR NMSE PARA CADA PAR
+# NMSE 
 # ============================================================
 print("NMSE Calculating...")
 nmse_sf = calculate_nmse(img_s, img_f)  # Slow vs Fast
@@ -232,13 +275,13 @@ print(f"   Slow vs Brisk: {nmse_sb:.3e}")
 print(f"   Fast vs Brisk: {nmse_fb:.3e}")
 
 # ============================================================
-# MAPAS DE DIFERENCIA (para visualizar)
+# Difference maps
 # ============================================================
 diff_sf = (img_s - img_f)**2
 diff_sb = (img_s - img_b)**2
 diff_fb = (img_f - img_b)**2
 
-# Escala común para los mapas de diferencia
+# scale
 all_diff = np.concatenate([diff_sf.ravel(), diff_sb.ravel(), diff_fb.ravel()])
 pos_diff = all_diff[all_diff > 0]
 eps = 1e-12
@@ -249,23 +292,18 @@ else:
     DMIN, DMAX = eps, 1.0
 
 # ============================================================
-# ESCALA PARA IMÁGENES FÍSICAS
+# scale for images
 # ============================================================
 all_imgs = np.concatenate([img_s.ravel(), img_f.ravel(), img_b.ravel()])
 positive_mask = all_imgs > 0
 VMAX = np.percentile(all_imgs, 99.5)
 VMIN = max(np.percentile(all_imgs[positive_mask], 1), eps)
 
-
-
-# ============================================================
-# EXTENT (ajusta según tus coordenadas)
-# ============================================================
-# Si tienes coordenadas específicas, modifica esta línea
-extent = [12, 12, 12, 12]  # [alpha_min, alpha_max, beta_min, beta_max]
+# extent define the physical limits of the image, but not the extent of the figure
+extent = [-lim0,lim0,-lim0,lim0]  
 
 # ============================================================
-# CREAR FIGURA 3x3
+# Figure 3x3
 # ============================================================
 fig, axes = plt.subplots(3, 3, figsize=(13, 11))
 
@@ -332,7 +370,7 @@ axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[2,2].set_xlabel(r'$\alpha$ (M)')
 
-# Configurar límites y aspecto para todas las subplots
+#Lim and subplot aspect
 for i in range(3):
     for j in range(3):
         axes[i,j].set_xlim(-12, 12)
@@ -341,20 +379,13 @@ for i in range(3):
         axes[i,j].set_aspect('equal')
 
 # ============================================================
-# SOLO UNA COLORBAR PARA LAS DIFERENCIAS (tercera columna)
+# Color Bar
 # ============================================================
 cbar_diff = fig.colorbar(im02, ax=axes[:,2], fraction=0.03, pad=0.1, aspect=40)
-# Si quieres agregar label a la colorbar, descomenta la línea siguiente:
+
 # cbar_diff.set_label('(a-b)²', fontsize=10)
 
-# ============================================================
-# AJUSTAR LAYOUT Y GUARDAR
-# ============================================================
 fig.subplots_adjust(wspace=0.25, hspace=0.25, right=0.88)
-
-# Crear directorio si no existe
-out_dir = "plots_comparison"
-os.makedirs(out_dir, exist_ok=True)
 
 # Guardar la figura (sin mostrarla para optimizar en cluster)
 fname = os.path.join(path_im, f"comparison_triplets_tsnap_n0_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
@@ -362,9 +393,3 @@ fig.savefig(fname, dpi=300, bbox_inches='tight', facecolor='white')
 plt.close(fig)
 
 print(f"\n Picture created in : {fname}")
-print("="*50)
-print("NMSE metric summery:")
-print(f"   Slow vs Fast:  {nmse_sf:.6e}")
-print(f"   Slow vs Brisk: {nmse_sb:.6e}")
-print(f"   Fast vs Brisk: {nmse_fb:.6e}")
-print("="*50)
