@@ -321,6 +321,8 @@ fact = -(D_obs + 2*np.log(D_obs))
 levels_iso = [-10, 0, 10]
 colors_iso = "white"
 styles_iso = ["-", "--", ":"]
+Alpha = 0.6
+Linewidths = 0.5
 # ============================================================
 # Figure 3x3
 # ============================================================
@@ -347,9 +349,10 @@ CS02 = axes[0,2].contour(
     levels=levels_iso,
     extent=extent,
     origin="lower",
-    linewidths=0.7,
+    linewidths=Linewidths,
     colors=colors_iso,
-    linestyles=styles_iso
+    linestyles=styles_iso,
+    alpha=Alpha
 )
 axes[0,2].clabel(CS02, fontsize=7)
 
@@ -378,9 +381,10 @@ CS12 = axes[1,2].contour(
     levels=levels_iso,
     extent=extent,
     origin="lower",
-    linewidths=0.7,
+    linewidths=Linewidths,
     colors=colors_iso,
-    linestyles=styles_iso
+    linestyles=styles_iso,
+    alpha=Alpha
 )
 axes[1,2].clabel(CS12, fontsize=7)
 
@@ -411,9 +415,10 @@ CS22 = axes[2,2].contour(
     levels=levels_iso,
     extent=extent,
     origin="lower",
-    linewidths=0.7,
+    linewidths=Linewidths,
     colors=colors_iso,
-    linestyles=styles_iso
+    linestyles=styles_iso,
+    alpha=Alpha
 )
 axes[2,2].clabel(CS22, fontsize=7)
 
