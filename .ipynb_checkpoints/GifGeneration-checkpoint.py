@@ -244,10 +244,9 @@ print("Starting Picture comparation")
 # ============================================================
 # SNAPSHOT 
 # ============================================================
-
-img_s = Is0 #+ Is1 + Is2  # Slow
-img_b = Ib0 #+ Ib1 + Ib2 # Brisk
-img_f = I0  #+ I1  + I2   # Fast
+img_s = Is0 + Is1 + Is2  # Slow
+img_b = Ib0 + Ib1 + Ib2  # Brisk
+img_f = I0  + I1  + I2   # Fast
 
 print(f"The images was created - Snapshot t={tsnap}")
 print(f"   Dimension: {img_s.shape}")
@@ -256,7 +255,6 @@ print(f"   Dimension: {img_s.shape}")
 # FUNTION: NMSE 
 # ============================================================
 def calculate_nmse(img_a, img_b):
-    """Calcula NMSE global: sum((a-b)^2) / sum(a^2)"""
     denominador = np.sum(img_a**2)
     if denominador == 0:
         return np.inf
@@ -266,9 +264,9 @@ def calculate_nmse(img_a, img_b):
 # NMSE 
 # ============================================================
 print("NMSE Calculating...")
-nmse_sf = calculate_nmse(img_s, img_f)  # Slow vs Fast
-nmse_sb = calculate_nmse(img_s, img_b)  # Slow vs Brisk
-nmse_fb = calculate_nmse(img_b,img_f)  # Fast vs Brisk
+nmse_sf = calculate_nmse(img_s, img_f)
+nmse_sb = calculate_nmse(img_s, img_b)
+nmse_fb = calculate_nmse(img_b, img_f)
 
 print(f"   Slow vs Fast:  {nmse_sf:.3e}")
 print(f"   Slow vs Brisk: {nmse_sb:.3e}")
@@ -281,96 +279,110 @@ diff_sf = (img_s - img_f)**2
 diff_sb = (img_s - img_b)**2
 diff_fb = (img_f - img_b)**2
 
-# scale
-all_diff = np.concatenate([diff_sf.ravel(), diff_sb.ravel(), diff_fb.ravel()])
-pos_diff = all_diff[all_diff > 0]
-eps = 1e-12
-if len(pos_diff) > 0:
-    DMIN = max(np.percentile(pos_diff, 1), eps)
-    DMAX = np.percentile(pos_diff, 99.5)
-else:
-    DMIN, DMAX = eps, 1.0
-
+# scale (differences)
+DMIN = 1e-12
+DMAX = 1e0
 # ============================================================
 # scale for images
 # ============================================================
 all_imgs = np.concatenate([img_s.ravel(), img_f.ravel(), img_b.ravel()])
-positive_mask = all_imgs > 0
-VMAX = np.percentile(all_imgs, 99.5)
-VMIN = max(np.percentile(all_imgs[positive_mask], 1), eps)
+pos_imgs = all_imgs[all_imgs > 0]
+eps = 1e-12
 
-# extent define the physical limits of the image, but not the extent of the figure
-extent = [-lim0,lim0,-lim0,lim0]  
+if len(pos_imgs) > 0:
+    VMIN = max(np.percentile(pos_imgs, 1), eps)
+    VMAX = np.percentile(pos_imgs, 99.5)
+else:
+    VMIN, VMAX = eps, 1.0
+
+if VMAX <= VMIN:
+    VMAX = VMIN * 10
+
+# ============================================================
+# clipping (consistency with log scale)
+# ============================================================
+img_s_plot = np.clip(img_s, eps, None)
+img_f_plot = np.clip(img_f, eps, None)
+img_b_plot = np.clip(img_b, eps, None)
+
+diff_sf_plot = np.clip(diff_sf, eps, None)
+diff_sb_plot = np.clip(diff_sb, eps, None)
+diff_fb_plot = np.clip(diff_fb, eps, None)
+
+# ============================================================
+# extent
+# ============================================================
+extent = [-lim0, lim0, -lim0, lim0]
 
 # ============================================================
 # Figure 3x3
 # ============================================================
 fig, axes = plt.subplots(3, 3, figsize=(13, 11))
 
-# FILA 1: Slow | Fast | Diferencia
-im00 = axes[0,0].imshow(img_s + eps, origin='lower', cmap='plasma', 
+# FILA 1
+im00 = axes[0,0].imshow(img_s_plot, origin='lower', cmap='plasma',
                         extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[0,0].text(0.05, 0.95, 'Slow-Light', transform=axes[0,0].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[0,0].text(0.05, 0.95, 'Slow-Light', transform=axes[0,0].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[0,0].set_ylabel(r'$\beta$ (M)')
 
-axes[0,1].imshow(img_f + eps, origin='lower', cmap='plasma', 
+axes[0,1].imshow(img_f_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[0,1].text(0.05, 0.95, 'Fast-Light', transform=axes[0,1].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[0,1].text(0.05, 0.95, 'Fast-Light', transform=axes[0,1].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-im02 = axes[0,2].imshow(diff_sf + eps, origin='lower', cmap='viridis', 
+im02 = axes[0,2].imshow(diff_sf_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
-axes[0,2].text(0.05, 0.95, f'Slow vs Fast\nNMSE = {nmse_sf:.3e}', 
-               transform=axes[0,2].transAxes, fontsize=9, color='white', 
+axes[0,2].text(0.05, 0.95, f'Slow vs Fast\nNMSE = {nmse_sf:.3e}',
+               transform=axes[0,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-# FILA 2: Slow | Brisk | Diferencia
-axes[1,0].imshow(img_s + eps, origin='lower', cmap='plasma', 
+# FILA 2
+axes[1,0].imshow(img_s_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[1,0].text(0.05, 0.95, 'Slow-Light', transform=axes[1,0].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[1,0].text(0.05, 0.95, 'Slow-Light', transform=axes[1,0].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[1,0].set_ylabel(r'$\beta$ (M)')
 
-axes[1,1].imshow(img_b + eps, origin='lower', cmap='plasma', 
+axes[1,1].imshow(img_b_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[1,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[1,1].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[1,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[1,1].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-im12 = axes[1,2].imshow(diff_sb + eps, origin='lower', cmap='viridis', 
+im12 = axes[1,2].imshow(diff_sb_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
-axes[1,2].text(0.05, 0.95, f'Slow vs Brisk\nNMSE = {nmse_sb:.3e}', 
-               transform=axes[1,2].transAxes, fontsize=9, color='white', 
+axes[1,2].text(0.05, 0.95, f'Slow vs Brisk\nNMSE = {nmse_sb:.3e}',
+               transform=axes[1,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-# FILA 3: Fast | Brisk | Diferencia
-axes[2,0].imshow(img_f + eps, origin='lower', cmap='plasma', 
+# FILA 3
+axes[2,0].imshow(img_f_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[2,0].text(0.05, 0.95, 'Fast-Light', transform=axes[2,0].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[2,0].text(0.05, 0.95, 'Fast-Light', transform=axes[2,0].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[2,0].set_xlabel(r'$\alpha$ (M)')
 axes[2,0].set_ylabel(r'$\beta$ (M)')
 
-axes[2,1].imshow(img_b + eps, origin='lower', cmap='plasma', 
+axes[2,1].imshow(img_b_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[2,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[2,1].transAxes, 
-               fontsize=11, fontweight='bold', color='white', 
+axes[2,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[2,1].transAxes,
+               fontsize=11, fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[2,1].set_xlabel(r'$\alpha$ (M)')
 
-im22 = axes[2,2].imshow(diff_fb + eps, origin='lower', cmap='viridis', 
+im22 = axes[2,2].imshow(diff_fb_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
-axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}', 
-               transform=axes[2,2].transAxes, fontsize=9, color='white', 
+axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}',
+               transform=axes[2,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 axes[2,2].set_xlabel(r'$\alpha$ (M)')
 
-#Lim and subplot aspect
+# limits
 for i in range(3):
     for j in range(3):
         axes[i,j].set_xlim(-12, 12)
@@ -378,17 +390,12 @@ for i in range(3):
         axes[i,j].set_facecolor('black')
         axes[i,j].set_aspect('equal')
 
-# ============================================================
-# Color Bar
-# ============================================================
+# colorbar
 cbar_diff = fig.colorbar(im02, ax=axes[:,2], fraction=0.03, pad=0.1, aspect=40)
-
-# cbar_diff.set_label('(a-b)²', fontsize=10)
 
 fig.subplots_adjust(wspace=0.25, hspace=0.25, right=0.88)
 
-# Guardar la figura (sin mostrarla para optimizar en cluster)
-fname = os.path.join(path_im, f"comparison_triplets_tsnap_n0_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
+fname = os.path.join(path_im, f"comparison_triplets_tsnap_{tsnap:04d}_p{p_brisk}_i{i_case}.png")
 fig.savefig(fname, dpi=300, bbox_inches='tight', facecolor='white')
 plt.close(fig)
 

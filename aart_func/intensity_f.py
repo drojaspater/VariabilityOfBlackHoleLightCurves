@@ -292,32 +292,36 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     if not (0 <= p < 1):
         raise ValueError("p debe estar en el intervalo [0, 1).")
 
-    # Caso degenerado: todos los valores iguales o casi iguales
+    # Degenerate case
     if np.allclose(data_finite, data_finite[0]):
         x0 = data_finite[0]
         return x0, x0, x0, 0.0, 1.0, np.inf
 
     kde = gaussian_kde(data_finite)
 
+    # An extended domain is defined
     xmin = data_finite.min()
     xmax = data_finite.max()
     std = np.std(data_finite, ddof=1)
     pad = pad_factor * std if std > 0 else 1.0
 
+    #Density and discretization
     xgrid = np.linspace(xmin - pad, xmax + pad, gridsize)
     dens = kde(xgrid)
 
+    #probability calculation
     dx = xgrid[1] - xgrid[0]
     probs = dens * dx
     total_mass = probs.sum()
 
     if total_mass <= 0 or not np.isfinite(total_mass):
-        raise ValueError("La masa total estimada del KDE no es válida.")
+        raise ValueError("The estimated total mass of the KDE is not valid.")
 
-    # Renormalizar sobre el grid
+    # renormalize
     probs = probs / total_mass
     dens = dens / total_mass
 
+    #Mode 
     mode_idx = np.argmax(dens)
     mode = xgrid[mode_idx]
 
@@ -325,10 +329,12 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
     best = None
 
     for _ in range(60):
+        #Binary search
         c = 0.5 * (lo + hi)
         mask = dens >= c
 
         if not mask[mode_idx]:
+            #I see that mode is included; if it isn't, I need to narrow the search criteria.
             hi = c
             continue
 
@@ -339,7 +345,7 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
         r = mode_idx
         while r < len(mask) - 1 and mask[r + 1]:
             r += 1
-
+        #Discrete probability approximation
         mass = probs[l:r+1].sum()
 
         if mass >= p:
@@ -350,14 +356,14 @@ def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
 
     if best is None:
         raise RuntimeError(
-            f"No se encontró HDI para p={p}. "
-            f"Revisa si el grid es demasiado corto o los datos son degenerados."
+            f"No HDI found for p={p}. "
+            f"Check if the grid is too short or the data is degenerate."
         )
 
     return best
 #########################################################################################
 #########################################################################################
-##########################################################################################
+#########################################################################################
 
 #calculate the observed brightness for an arbitrary profile, passed in as the interpolation object
 #but ignoring the time delay due to lensing
