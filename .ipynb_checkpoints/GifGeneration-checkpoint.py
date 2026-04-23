@@ -315,6 +315,13 @@ diff_fb_plot = np.clip(diff_fb, eps, None)
 extent = [-lim0, lim0, -lim0, lim0]
 
 # ============================================================
+# Isocronas
+# ============================================================
+fact = -(D_obs + 2*np.log(D_obs))
+levels_iso = [-10, 0, 10]
+colors_iso = "white"
+styles_iso = ["-", "--", ":"]
+# ============================================================
 # Figure 3x3
 # ============================================================
 fig, axes = plt.subplots(3, 3, figsize=(13, 11))
@@ -335,6 +342,17 @@ axes[0,1].text(0.05, 0.95, 'Fast-Light', transform=axes[0,1].transAxes,
 
 im02 = axes[0,2].imshow(diff_sf_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
+CS02 = axes[0,2].contour(
+    t0.reshape(N0, N0).T - fact,
+    levels=levels_iso,
+    extent=extent,
+    origin="lower",
+    linewidths=0.7,
+    colors=colors_iso,
+    linestyles=styles_iso
+)
+axes[0,2].clabel(CS02, fontsize=7)
+
 axes[0,2].text(0.05, 0.95, f'Slow vs Fast\nNMSE = {nmse_sf:.3e}',
                transform=axes[0,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
@@ -355,6 +373,17 @@ axes[1,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[1,1].transAxes,
 
 im12 = axes[1,2].imshow(diff_sb_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
+CS12 = axes[1,2].contour(
+    t0.reshape(N0, N0).T - fact,
+    levels=levels_iso,
+    extent=extent,
+    origin="lower",
+    linewidths=0.7,
+    colors=colors_iso,
+    linestyles=styles_iso
+)
+axes[1,2].clabel(CS12, fontsize=7)
+
 axes[1,2].text(0.05, 0.95, f'Slow vs Brisk\nNMSE = {nmse_sb:.3e}',
                transform=axes[1,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
@@ -377,6 +406,17 @@ axes[2,1].set_xlabel(r'$\alpha$ (M)')
 
 im22 = axes[2,2].imshow(diff_fb_plot, origin='lower', cmap='viridis',
                         extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
+CS22 = axes[2,2].contour(
+    t0.reshape(N0, N0).T - fact,
+    levels=levels_iso,
+    extent=extent,
+    origin="lower",
+    linewidths=0.7,
+    colors=colors_iso,
+    linestyles=styles_iso
+)
+axes[2,2].clabel(CS22, fontsize=7)
+
 axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}',
                transform=axes[2,2].transAxes, fontsize=9, color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
