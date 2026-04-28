@@ -321,12 +321,22 @@ fact = -(D_obs + 2*np.log(D_obs))
 levels_iso = [-10, 0, 10]
 colors_iso = "white"
 styles_iso = ["-", "--", ":"]
-Alpha = 0.6
+Alpha = 0.7
 Linewidths = 0.5
 
 # ============================================================
 # Figure 3x3 (formato del código local)
 # ============================================================
+
+# ── Escala de fuentes para figsize=(14,12), grilla 3×3 ──────────────────
+FS = dict(
+    inplot      = 12*1.8,   # etiquetas dentro de la imagen (Slow-Light, etc.)
+    inplot_nmse = 12*1.8,   # texto NMSE
+    ticks       = 12*1.5,   # tick labels de los ejes
+    cbar        = 12*1.8,   # tick labels de la colorbar
+    axis_label  = 13*1.8,   # supylabel y xlabel global
+)
+
 fig, axes = plt.subplots(3, 3, figsize=(14, 12), sharey=True)
 
 plt.subplots_adjust(
@@ -338,19 +348,19 @@ plt.subplots_adjust(
     wspace=0.08
 )
 
-fig.supylabel(r'$\beta$ (M)', fontsize=16, x=0.035)
+fig.supylabel(r'$\beta$ (M)', fontsize=FS['axis_label'], x=0.035)
 
 # FILA 1
 im00 = axes[0,0].imshow(img_s_plot, origin='lower', cmap='plasma',
                         extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[0,0].text(0.05, 0.95, 'Slow-Light', transform=axes[0,0].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 axes[0,1].imshow(img_f_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[0,1].text(0.05, 0.95, 'Fast-Light', transform=axes[0,1].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 im02 = axes[0,2].imshow(diff_sf_plot, origin='lower', cmap='viridis',
@@ -365,22 +375,22 @@ CS02 = axes[0,2].contour(
     linestyles=styles_iso,
     alpha=Alpha
 )
-axes[0,2].clabel(CS02, fontsize=7)
+axes[0,2].clabel(CS02, fontsize=12)
 axes[0,2].text(0.05, 0.95, f'Slow vs Fast\nNMSE = {nmse_sf:.3e}',
-               transform=axes[0,2].transAxes, fontsize=12, color='white',
+               transform=axes[0,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 # FILA 2
 axes[1,0].imshow(img_s_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[1,0].text(0.05, 0.95, 'Slow-Light', transform=axes[1,0].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 axes[1,1].imshow(img_b_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[1,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[1,1].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 im12 = axes[1,2].imshow(diff_sb_plot, origin='lower', cmap='viridis',
@@ -395,22 +405,22 @@ CS12 = axes[1,2].contour(
     linestyles=styles_iso,
     alpha=Alpha
 )
-axes[1,2].clabel(CS12, fontsize=7)
+axes[1,2].clabel(CS12, fontsize=11)
 axes[1,2].text(0.05, 0.95, f'Slow vs Brisk\nNMSE = {nmse_sb:.3e}',
-               transform=axes[1,2].transAxes, fontsize=12, color='white',
+               transform=axes[1,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 # FILA 3
 axes[2,0].imshow(img_f_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[2,0].text(0.05, 0.95, 'Fast-Light', transform=axes[2,0].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 axes[2,1].imshow(img_b_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[2,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[2,1].transAxes,
-               fontsize=14, fontweight='bold', color='white',
+               fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 im22 = axes[2,2].imshow(diff_fb_plot, origin='lower', cmap='viridis',
@@ -425,9 +435,9 @@ CS22 = axes[2,2].contour(
     linestyles=styles_iso,
     alpha=Alpha
 )
-axes[2,2].clabel(CS22, fontsize=7)
+axes[2,2].clabel(CS22, fontsize=11)
 axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}',
-               transform=axes[2,2].transAxes, fontsize=12, color='white',
+               transform=axes[2,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
 # ============================================================
@@ -439,7 +449,7 @@ for i in range(3):
         axes[i,j].set_ylim(-12, 12)
         axes[i,j].set_facecolor('black')
         axes[i,j].set_aspect('equal')
-        axes[i,j].tick_params(labelsize=14)
+        axes[i,j].tick_params(labelsize=FS['ticks'])
 
 # Quitar labels X en filas superiores
 for i in range(2):
@@ -447,12 +457,13 @@ for i in range(2):
         axes[i,j].tick_params(labelbottom=False)
 
 # Label X solo abajo
-axes[2,1].set_xlabel(r'$\alpha$ (M)', fontsize=16)
+axes[2,1].set_xlabel(r'$\alpha$ (M)', fontsize=FS['axis_label'])
 
 # ============================================================
 # COLORBAR
 # ============================================================
 cbar_diff = fig.colorbar(im02, ax=axes[:,2], fraction=0.04, pad=0.06, aspect=25)
+cbar_diff.ax.tick_params(labelsize=FS['cbar'])
 
 # ============================================================
 # OUTPUT
