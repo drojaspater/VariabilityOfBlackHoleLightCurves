@@ -462,7 +462,8 @@ axes[2,1].set_xlabel(r'$\alpha$ (M)', fontsize=FS['axis_label'])
 # ============================================================
 # COLORBAR
 # ============================================================
-cbar_diff = fig.colorbar(im02, ax=axes[:,2], fraction=0.04, pad=0.06, aspect=25)
+cbar_ax = fig.add_axes([0.87, 0.15, 0.02, 0.75])  # [left, bottom, width, height]
+cbar_diff = fig.colorbar(im02, cax=cbar_ax)
 cbar_diff.ax.tick_params(labelsize=FS['cbar'])
 
 # ============================================================
