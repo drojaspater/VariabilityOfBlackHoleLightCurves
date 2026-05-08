@@ -128,14 +128,14 @@ timeconversion=i_dt*MMkg*Gc/cc**3/(3600*24) # [days]
 
 interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
 
-# Calcular ancho para n=0
-if p_brisk != 1:
-    _, left0, right0, _, _, _ = obsint.modal_hdi_kde(t0, p_brisk)
-    _, left1, right1, _, _, _ = obsint.modal_hdi_kde(t1, p_brisk)
-    _, left2, right2, _, _, _ = obsint.modal_hdi_kde(t2, p_brisk)
-else: 
-    sys.exit("p_brisk = 1. Use Slow Light Mode instead.")
 
+res0 = obsint.modal_hdi_kde(t0, p_brisk)
+res1 = obsint.modal_hdi_kde(t1, p_brisk)
+res2 = obsint.modal_hdi_kde(t2, p_brisk)
+
+left0, right0 = res0["interval"]
+left1, right1 = res1["interval"]
+left2, right2 = res2["interval"]
 
 
 I0s = []

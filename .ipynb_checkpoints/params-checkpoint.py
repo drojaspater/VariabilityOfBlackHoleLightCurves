@@ -3,7 +3,7 @@ from aart_func import *
 print("\nThanks for using AART")
 print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
-p_brisk = 0.2
+p_brisk = 0.5
 # BH's Spin
 spin_case = 0.94
 # Observer's inclination

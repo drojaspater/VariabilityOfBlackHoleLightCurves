@@ -261,106 +261,268 @@ def clip_ts_to_interval(ts, left_s, right_s):
     return ts_out
     
 #########################################################################################
-def modal_hdi_kde(data, p=0.68, gridsize=4000, pad_factor=3.0):
+def modal_hdi_kde(data,p,*,bounds=None,trim_quantiles=(0.005, 0.995),fit_on="trimmed",bw_method=None,gridsize=4096):
     """
-    Compute a modal highest-density interval (HDI) from a kernel density estimate (KDE).
-    This function estimates the probability density of the input data using a Gaussian
-    KDE, identifies the mode as the location of maximum estimated density, and then
-    finds the connected interval around that mode that contains approximately a target
-    probability mass `p`.
-    :param data: One-dimensional sample of data points.
-    :param p: Target probability mass to be enclosed by the modal HDI. Must be between 0 and 1.
-    :param gridsize: Number of grid points used to evaluate the KDE between the minimum and maximum of the data.
-    :param pad_factor: Factor that multiplies the sample standard deviation to define how much
-                   the KDE evaluation grid is extended beyond the data range on both sides.
-    
-    :returns: A tuple containing:
-              - mode: location of the KDE mode
-              - left: left boundary of the modal HDI
-              - right: right boundary of the modal HDI
-              - width: interval width, computed as right - left
-              - mass: approximate probability mass enclosed in the interval
-              - threshold: density threshold defining the interval
+    KDE modal mass interval with robust handling of long tails / extreme values.
+
+    Parameters
+    ----------
+    data : array-like
+        1D data.
+    p : float
+        Desired probability mass around the mode, between 0 and 1.
+        p=0 returns only the mode.
+        p=1 returns the whole accepted support.
+    bounds : tuple or None
+        Explicit bounds `(lower, upper)` of the region you want to consider.
+        If None, bounds are computed from `trim_quantiles`.
+    trim_quantiles : tuple
+        Quantiles used to define the accepted support when `bounds=None`.
+        Example: (0.005, 0.995) ignores the lowest 0.5% and highest 0.5%.
+        For a one-sided long upper tail, use e.g. (0.0, 0.99).
+    fit_on : {"trimmed", "winsorized", "all"}
+        How to fit the KDE:
+        - "trimmed": remove points outside bounds before fitting. Recommended.
+        - "winsorized": clip points to bounds before fitting.
+        - "all": fit KDE to all data, but compute mass only inside bounds.
+    bw_method : str, float, callable, optional
+        Passed to scipy.stats.gaussian_kde.
+    gridsize : int
+        Number of grid points used for numerical approximation.
+
+    Returns
+    -------
+    dict
+        Contains the KDE, mode, interval, selected mass, grid, density, mask,
+        accepted bounds, and fraction of data ignored.
     """
-    data = np.asarray(data, dtype=float)
-    data_finite = data[np.isfinite(data)]
 
-    if data_finite.size == 0:
-        raise ValueError("No hay datos finitos.")
-    if data_finite.size < 2:
-        raise ValueError("Se necesitan al menos 2 datos para gaussian_kde.")
-    if not (0 <= p < 1):
-        raise ValueError("p debe estar en el intervalo [0, 1).")
+    x = np.asarray(data, dtype=float).ravel()
+    x = x[np.isfinite(x)]
 
-    # Degenerate case
-    if np.allclose(data_finite, data_finite[0]):
-        x0 = data_finite[0]
-        return x0, x0, x0, 0.0, 1.0, np.inf
+    if x.size < 2:
+        raise ValueError("Need at least two finite data points.")
 
-    kde = gaussian_kde(data_finite)
+    if not 0 <= p <= 1:
+        raise ValueError("p must satisfy 0 <= p <= 1.")
 
-    # An extended domain is defined
-    xmin = data_finite.min()
-    xmax = data_finite.max()
-    std = np.std(data_finite, ddof=1)
-    pad = pad_factor * std if std > 0 else 1.0
+    # Define the accepted region.
+    if bounds is None:
+        q_low, q_high = trim_quantiles
+        if not 0 <= q_low < q_high <= 1:
+            raise ValueError("trim_quantiles must satisfy 0 <= low < high <= 1.")
+        lo, hi = np.quantile(x, [q_low, q_high])
+    else:
+        lo, hi = map(float, bounds)
 
-    #Density and discretization
-    xgrid = np.linspace(xmin - pad, xmax + pad, gridsize)
-    dens = kde(xgrid)
+    if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
+        raise ValueError("Invalid bounds.")
 
-    #probability calculation
-    dx = xgrid[1] - xgrid[0]
-    probs = dens * dx
-    total_mass = probs.sum()
+    ignored_fraction = np.mean((x < lo) | (x > hi))
 
-    if total_mass <= 0 or not np.isfinite(total_mass):
-        raise ValueError("The estimated total mass of the KDE is not valid.")
+    # Choose which data are used to fit the KDE.
+    if fit_on == "trimmed":
+        x_fit = x[(x >= lo) & (x <= hi)]
+    elif fit_on == "winsorized":
+        x_fit = np.clip(x, lo, hi)
+    elif fit_on == "all":
+        x_fit = x
+    else:
+        raise ValueError("fit_on must be 'trimmed', 'winsorized', or 'all'.")
 
-    # renormalize
-    probs = probs / total_mass
-    dens = dens / total_mass
+    if x_fit.size < 2:
+        raise ValueError("Too few data points remain after trimming.")
 
-    #Mode 
-    mode_idx = np.argmax(dens)
-    mode = xgrid[mode_idx]
+    if np.ptp(x_fit) == 0:
+        raise ValueError("Remaining data are constant; KDE is not well-defined.")
 
-    lo, hi = 0.0, dens[mode_idx]
-    best = None
+    kde = gaussian_kde(x_fit, bw_method=bw_method)
+
+    # Evaluate KDE only on the accepted support.
+    x_grid = np.linspace(lo, hi, gridsize)
+    density_raw = kde(x_grid)
+
+    # Renormalize density on accepted support.
+    total_area = np.trapz(density_raw, x_grid)
+
+    if total_area <= 0 or not np.isfinite(total_area):
+        raise ValueError("Could not normalize KDE on the accepted support.")
+
+    density = density_raw / total_area
+
+    mode_idx = np.argmax(density)
+    mode = x_grid[mode_idx]
+
+    if p == 0:
+        mask = np.zeros_like(x_grid, dtype=bool)
+        mask[mode_idx] = True
+
+        return {
+            "kde": kde,
+            "mode": mode,
+            "interval": (mode, mode),
+            "mass": 0.0,
+            "bounds": (lo, hi),
+            "ignored_fraction": ignored_fraction,
+            "x_grid": x_grid,
+            "density": density,
+            "mask": mask,
+            "density_threshold": density[mode_idx]}
+
+    if p == 1:
+        mask = np.ones_like(x_grid, dtype=bool)
+
+        return {
+            "kde": kde,
+            "mode": mode,
+            "interval": (lo, hi),
+            "mass": 1.0,
+            "bounds": (lo, hi),
+            "ignored_fraction": ignored_fraction,
+            "x_grid": x_grid,
+            "density": density,
+            "mask": mask,
+            "density_threshold": 0.0,
+        }
+
+    def modal_component_at_threshold(threshold):
+        """Connected region around the mode where density >= threshold."""
+        above = density >= threshold
+
+        left = mode_idx
+        while left > 0 and above[left - 1]:
+            left -= 1
+
+        right = mode_idx
+        while right < len(x_grid) - 1 and above[right + 1]:
+            right += 1
+
+        return left, right
+
+    def component_mass(left, right):
+        if right <= left:
+            return 0.0
+        return np.trapz(density[left:right + 1], x_grid[left:right + 1])
+
+    # Binary search for the highest density threshold whose modal component
+    # contains probability mass at least p.
+    low = 0.0
+    high = density[mode_idx]
 
     for _ in range(60):
-        #Binary search
-        c = 0.5 * (lo + hi)
-        mask = dens >= c
+        mid = 0.5 * (low + high)
+        left, right = modal_component_at_threshold(mid)
+        mass_mid = component_mass(left, right)
 
-        if not mask[mode_idx]:
-            #I see that mode is included; if it isn't, I need to narrow the search criteria.
-            hi = c
-            continue
-
-        l = mode_idx
-        while l > 0 and mask[l - 1]:
-            l -= 1
-
-        r = mode_idx
-        while r < len(mask) - 1 and mask[r + 1]:
-            r += 1
-        #Discrete probability approximation
-        mass = probs[l:r+1].sum()
-
-        if mass >= p:
-            lo = c
-            best = (mode, xgrid[l], xgrid[r], xgrid[r] - xgrid[l], mass, c)
+        if mass_mid >= p:
+            low = mid
         else:
-            hi = c
+            high = mid
 
-    if best is None:
-        raise RuntimeError(
-            f"No HDI found for p={p}. "
-            f"Check if the grid is too short or the data is degenerate."
+    threshold = low
+    left, right = modal_component_at_threshold(threshold)
+
+    interval = (x_grid[left], x_grid[right])
+    mass = component_mass(left, right)
+
+    mask = np.zeros_like(x_grid, dtype=bool)
+    mask[left:right + 1] = True
+
+    return {
+        "kde": kde,
+        "mode": mode,
+        "interval": interval,
+        "mass": mass,
+        "bounds": (lo, hi),
+        "ignored_fraction": ignored_fraction,
+        "x_grid": x_grid,
+        "density": density,
+        "mask": mask,
+        "density_threshold": threshold,
+    }
+
+
+def plot_kde_mass_result(res, data=None, bins=100, show_hist=True):
+    """
+    Plot KDE, shaded modal mass region, mode, and accepted bounds.
+
+    Parameters
+    ----------
+    res : dict
+        Output from robust_kde_mass_around_mode or kde_mass_around_mode.
+    data : array-like, optional
+        Original data. Used only to show a histogram.
+    bins : int
+        Number of histogram bins.
+    show_hist : bool
+        Whether to show histogram of the data.
+    """
+
+    x_grid = res["x_grid"]
+    density = res["density"]
+    mask = res["mask"]
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    # Optional histogram
+    if show_hist and data is not None:
+        data = np.asarray(data)
+        data = data[np.isfinite(data)]
+
+        # If robust bounds exist, plot only data inside accepted support
+        if "bounds" in res:
+            lo, hi = res["bounds"]
+            data = data[(data >= lo) & (data <= hi)]
+
+        ax.hist(
+            data,
+            bins=bins,
+            density=True,
+            alpha=0.25,
+            label="Data histogram"
         )
 
-    return best
+    # KDE curve
+    ax.plot(x_grid, density, label="KDE")
+
+    # Shaded mass around the mode
+    ax.fill_between(
+        x_grid,
+        density,
+        where=mask,
+        alpha=0.35,
+        label="Mass around mode"
+    )
+
+    # Mode
+    ax.axvline(
+        res["mode"],
+        linestyle="--",
+        label=f"Mode = {res['mode']:.4g}"
+    )
+
+    # Selected interval
+    left, right = res["interval"]
+    ax.axvline(left, linestyle=":", label=f"Interval = [{left:.4g}, {right:.4g}]")
+    ax.axvline(right, linestyle=":")
+
+    # Accepted bounds, if using the robust version
+    if "bounds" in res:
+        blo, bhi = res["bounds"]
+        ax.axvline(blo, linestyle="-.", alpha=0.7, label="Accepted bounds")
+        ax.axvline(bhi, linestyle="-.", alpha=0.7)
+
+    #llo,lhi=res['interval']
+    #ax.set_xlim(-200,0)
+
+    ax.set_xlabel("x")
+    ax.set_ylabel("Density")
+    ax.set_title("KDE mass around the mode")
+    ax.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 #########################################################################################
 #########################################################################################
 #########################################################################################
