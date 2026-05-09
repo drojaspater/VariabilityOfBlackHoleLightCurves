@@ -279,5 +279,5 @@ for combo in combinations:
             f.write(str_params)
     
         print("Document 'params.py' was created.")
-        subprocess.run(["python", "LightCurveBrisk.py"])
+        subprocess.run(["python", "GifGeneration.py"])
 
