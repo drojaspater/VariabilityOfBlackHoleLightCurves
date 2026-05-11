@@ -17,8 +17,6 @@ plt.rcParams['text.usetex'] = False
 #    light_curve = np.sum(I_total, axis=(1, 2))
 #    return light_curve
 
-tsnap = 500
-
 fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
 print("Reading file: ",fnbands)

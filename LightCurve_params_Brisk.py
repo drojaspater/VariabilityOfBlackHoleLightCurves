@@ -4,17 +4,18 @@ import textwrap
 
 
 #Nn = [1,2,8,32,64]
-P = [0,0.2,0.5]
+P = [0]
 Nn = [1]
-I_Case = [17,60]
+I_Case = [60]
+Tsnap = [0,50,77,463,521,1563]
 combinations_name = [(r"inoisy_512_8192_30_5000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_87648.0.h5", 512, 8192, 5000,0.94)]
 
 #combinations_name = [(r"inoisy_512_2048_30_1000_5.00_0.10_0.9400_1.00_1.00_1.00_0.349_137.0_137.0_115249.0.h5", 512, 2048, 1000,0.94)]
 
-combinations = list(itertools.product(combinations_name, Nn, I_Case,P))
+combinations = list(itertools.product(combinations_name, Nn, I_Case,Tsnap))
 
 for combo in combinations:
-    (i_source, i_spatial, i_temporal, inoisyduration,spin_case), n, i_case, p_brisk = combo
+    (i_source, i_spatial, i_temporal, inoisyduration,spin_case), n, i_case, p_brisk,tsnap = combo
     
     snapshots_inoisy = i_temporal
     f_tM = inoisyduration
@@ -32,6 +33,7 @@ for combo in combinations:
         print("\nThanks for using AART")
         print("Copyright (C) 2023, A. Cardenas-Avendano, H. Zhu & A. Lupsasca\n")
 
+        tsnap = {tsnap}
         p_brisk = {p_brisk}
         #BH's Spin
         spin_case={spin_case}
