@@ -4,7 +4,10 @@ from aart_func import *
 from params import * 
 
 import matplotlib.pyplot as plt
-plt.rcParams['text.usetex'] = False
+plt.rcParams['mathtext.fontset'] = 'cm'        # Computer Modern, igual a LaTeX por defecto
+plt.rcParams['font.family']      = 'serif'
+plt.rcParams['font.serif']       = ['cmr10', 'DejaVu Serif']
+plt.rcParams['axes.formatter.use_mathtext'] = True
 # LightCurve Function generation
 
 
@@ -240,7 +243,7 @@ from matplotlib.colors import LogNorm
 print("Starting Picture comparation")
 
 # ============================================================
-# SNAPSHOT 
+# SNAPSHOT
 # ============================================================
 img_s = Is0 + Is1 + Is2  # Slow
 img_b = Ib0 + Ib1 + Ib2  # Brisk
@@ -250,7 +253,7 @@ print(f"The images was created - Snapshot t={tsnap}")
 print(f"   Dimension: {img_s.shape}")
 
 # ============================================================
-# FUNTION: NMSE 
+# FUNTION: NMSE
 # ============================================================
 def calculate_nmse(img_a, img_b):
     denominador = np.sum(img_a**2)
@@ -259,12 +262,12 @@ def calculate_nmse(img_a, img_b):
     return np.sum((img_a - img_b)**2) / denominador
 
 # ============================================================
-# NMSE 
+# NMSE
 # ============================================================
 print("NMSE Calculating...")
 nmse_sf = calculate_nmse(img_s, img_f)
 nmse_sb = calculate_nmse(img_s, img_b)
-nmse_fb = calculate_nmse(img_b, img_f)
+nmse_fb = calculate_nmse(img_b, img_f)   # se mantiene para logging
 
 print(f"   Slow vs Fast:  {nmse_sf:.3e}")
 print(f"   Slow vs Brisk: {nmse_sb:.3e}")
@@ -275,11 +278,12 @@ print(f"   Fast vs Brisk: {nmse_fb:.3e}")
 # ============================================================
 diff_sf = (img_s - img_f)**2
 diff_sb = (img_s - img_b)**2
-diff_fb = (img_f - img_b)**2
+# diff_fb ya no se grafica; se omite del plot
 
 # scale (differences)
 DMIN = 1e-12
 DMAX = 1e0
+
 # ============================================================
 # scale for images
 # ============================================================
@@ -297,7 +301,7 @@ if VMAX <= VMIN:
     VMAX = VMIN * 10
 
 # ============================================================
-# clipping (consistency with log scale)
+# clipping
 # ============================================================
 img_s_plot = np.clip(img_s, eps, None)
 img_f_plot = np.clip(img_f, eps, None)
@@ -305,7 +309,6 @@ img_b_plot = np.clip(img_b, eps, None)
 
 diff_sf_plot = np.clip(diff_sf, eps, None)
 diff_sb_plot = np.clip(diff_sb, eps, None)
-diff_fb_plot = np.clip(diff_fb, eps, None)
 
 # ============================================================
 # extent
@@ -323,34 +326,39 @@ Alpha = 0.7
 Linewidths = 0.5
 
 # ============================================================
-# Figure 3x3 (formato del código local)
+# Figura 2x3 (recorte de la 3x3 original, sin reescalado)
 # ============================================================
-
-# ── Escala de fuentes para figsize=(14,12), grilla 3×3 ──────────────────
 FS = dict(
-    inplot      = 12*1.8,   # etiquetas dentro de la imagen (Slow-Light, etc.)
-    inplot_nmse = 12*1.8,   # texto NMSE
-    ticks       = 12*1.5,   # tick labels de los ejes
-    cbar        = 12*1.8,   # tick labels de la colorbar
-    axis_label  = 13*1.8,   # supylabel y xlabel global
+    inplot      = 12*1.8,
+    inplot_nmse = 12*1.8,
+    ticks       = 12*1.5,
+    cbar        = 12*1.8,
+    axis_label  = 13*1.8,
 )
 
-fig, axes = plt.subplots(3, 3, figsize=(14, 12), sharey=True)
+# Dimensiones que preservan tamaño absoluto de cada panel
+# (ver justificación en la versión local: h_panel = 3.2625 in,
+#  márgenes inf=0.96 in y sup=0.6 in)
+FIG_H = 8.41125
+
+fig, axes = plt.subplots(2, 3, figsize=(14, FIG_H), sharey=True)
 
 plt.subplots_adjust(
     left=0.09,
     right=0.85,
-    bottom=0.08,
-    top=0.95,
+    bottom=0.96/FIG_H,
+    top=1 - 0.6/FIG_H,
     hspace=0.1,
     wspace=0.08
 )
 
 fig.supylabel(r'$\beta$ (M)', fontsize=FS['axis_label'], x=0.035)
 
-# FILA 1
-im00 = axes[0,0].imshow(img_s_plot, origin='lower', cmap='plasma',
-                        extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
+# ============================================================
+# FILA 0: Slow vs Fast
+# ============================================================
+axes[0,0].imshow(img_s_plot, origin='lower', cmap='plasma',
+                 extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[0,0].text(0.05, 0.95, 'Slow-Light', transform=axes[0,0].transAxes,
                fontsize=FS['inplot'], fontweight='bold', color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
@@ -378,7 +386,9 @@ axes[0,2].text(0.05, 0.95, f'Slow vs Fast\nNMSE = {nmse_sf:.3e}',
                transform=axes[0,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-# FILA 2
+# ============================================================
+# FILA 1: Slow vs Brisk
+# ============================================================
 axes[1,0].imshow(img_s_plot, origin='lower', cmap='plasma',
                  extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
 axes[1,0].text(0.05, 0.95, 'Slow-Light', transform=axes[1,0].transAxes,
@@ -408,40 +418,10 @@ axes[1,2].text(0.05, 0.95, f'Slow vs Brisk\nNMSE = {nmse_sb:.3e}',
                transform=axes[1,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
                bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
 
-# FILA 3
-axes[2,0].imshow(img_f_plot, origin='lower', cmap='plasma',
-                 extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[2,0].text(0.05, 0.95, 'Fast-Light', transform=axes[2,0].transAxes,
-               fontsize=FS['inplot'], fontweight='bold', color='white',
-               bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
-
-axes[2,1].imshow(img_b_plot, origin='lower', cmap='plasma',
-                 extent=extent, norm=LogNorm(vmin=VMIN, vmax=VMAX))
-axes[2,1].text(0.05, 0.95, 'Brisk-Light', transform=axes[2,1].transAxes,
-               fontsize=FS['inplot'], fontweight='bold', color='white',
-               bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
-
-im22 = axes[2,2].imshow(diff_fb_plot, origin='lower', cmap='viridis',
-                        extent=extent, norm=LogNorm(vmin=DMIN, vmax=DMAX))
-CS22 = axes[2,2].contour(
-    t0.reshape(N0, N0).T - fact,
-    levels=levels_iso,
-    extent=extent,
-    origin="lower",
-    linewidths=Linewidths,
-    colors=colors_iso,
-    linestyles=styles_iso,
-    alpha=Alpha
-)
-axes[2,2].clabel(CS22, fontsize=11)
-axes[2,2].text(0.05, 0.95, f'Fast vs Brisk\nNMSE = {nmse_fb:.3e}',
-               transform=axes[2,2].transAxes, fontsize=FS['inplot_nmse'], color='white',
-               bbox=dict(boxstyle="round,pad=0.3", facecolor='black', alpha=0.7))
-
 # ============================================================
 # FORMATO GLOBAL
 # ============================================================
-for i in range(3):
+for i in range(2):
     for j in range(3):
         axes[i,j].set_xlim(-12, 12)
         axes[i,j].set_ylim(-12, 12)
@@ -449,18 +429,22 @@ for i in range(3):
         axes[i,j].set_aspect('equal')
         axes[i,j].tick_params(labelsize=FS['ticks'])
 
-# Quitar labels X en filas superiores
-for i in range(2):
-    for j in range(3):
-        axes[i,j].tick_params(labelbottom=False)
+# Quitar labels X en la fila superior
+for j in range(3):
+    axes[0,j].tick_params(labelbottom=False)
 
 # Label X solo abajo
-axes[2,1].set_xlabel(r'$\alpha$ (M)', fontsize=FS['axis_label'])
+axes[1,1].set_xlabel(r'$\alpha$ (M)', fontsize=FS['axis_label'])
 
 # ============================================================
-# COLORBAR
+# COLORBAR (ajustada a 2 filas, manteniendo insets absolutos)
 # ============================================================
-cbar_ax = fig.add_axes([0.87, 0.15, 0.02, 0.75])  # [left, bottom, width, height]
+panel_bottom_frac = 0.96/FIG_H
+panel_top_frac    = 1 - 0.6/FIG_H
+cbar_bottom = panel_bottom_frac + 0.84/FIG_H
+cbar_top    = panel_top_frac    - 0.60/FIG_H
+
+cbar_ax = fig.add_axes([0.87, cbar_bottom, 0.02, cbar_top - cbar_bottom])
 cbar_diff = fig.colorbar(im02, cax=cbar_ax)
 cbar_diff.ax.tick_params(labelsize=FS['cbar'])
 
