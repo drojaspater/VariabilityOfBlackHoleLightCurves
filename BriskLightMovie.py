@@ -2,7 +2,7 @@ from aart_func import *
 from params import * 
 from multiprocessing import get_context
 
-print("Movies")
+print("Brisk Movies")
 
 fnbands=path_lb+"LensingBands_a%s_i%s_dx%s.h5"%(spin_case,i_case,dx0)
 
@@ -107,7 +107,7 @@ x2 = np.linspace(x2start, x2end, nj)
 times = np.linspace(xtstart, xtend, nt)
 
 h5py.File.close(hf)
-### Transformación para visualización del tiempo ###
+
 fact=-(D_obs+2*np.log(D_obs))
 
 t0-=fact
@@ -180,7 +180,6 @@ def mp_worker(tsnap):
     return(i_I0,i_I1,i_I2)
 
 
-###Opción for Windows
 def main():
     p = get_context("spawn").Pool(nthreads)
     I0s, I1s, I2s = zip(*p.map(mp_worker, np.linspace(i_tM + i_frame, f_tM, snapshots)))
@@ -197,7 +196,6 @@ def main():
     print("Images ",filename," created.\n")
     h5f.close()
     p.close()
-    # Aquí puedes agregar lo que quieras hacer con I0s, I1s, I2s
 
 if __name__ == '__main__':
     main()

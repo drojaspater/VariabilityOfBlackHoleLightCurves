@@ -1,5 +1,6 @@
 from aart_func import *
 from params import * 
+from multiprocessing import get_context
 
 print("Computing the fast-light Movie")
 
@@ -52,15 +53,13 @@ try:
 except:
     data = np.array(hf['data/data_raw'])
 
-
+# inoisy has periodic boundaries, so we need to wrap the data with one frame
 data=np.concatenate((data,data[0,:,:][np.newaxis,:,:]),axis=0)
-#data=np.flip(data,axis=(2))
 
 
 ##################################Change Emission Rate##################################
-## You can delate this section and nothing happen, this is only for the variation on the
+## You can delete this section and nothing will happen, this is only for the variation on the
 ## Emission rate
-
 
 def LowerDimension(df):
     selected_indices = np.linspace(0, snapshots_inoisy-1, int(snapshots_source), dtype=int)
@@ -76,11 +75,9 @@ def LowerDimension(df):
 data = LowerDimension(data)
 ########################################################################################
 
-
-
-nt = data.shape[0] #inoisy time resolution
-ni = data.shape[1] #inoisy x resolution
-nj = data.shape[2] #inoisy y resolution
+nt = data.shape[0]
+ni = data.shape[1]
+nj = data.shape[2]
 
 try: 
 	xtstart = np.array(hf['params/x0start'])[0]
@@ -119,13 +116,12 @@ maxintensity=np.nanmax(data)
 
 interpolated3_R=RegularGridInterpolator((times,x1,x2),data,fill_value=0,bounds_error=False,method='linear')
 
-
 # Define a COMMON time grid for both fast-light and slow-light
 # This ensures frame-by-frame temporal alignment
 t_frames = np.linspace(i_tM, f_tM, snapshots, endpoint=False)
 
 
-# Worker: now receives PHYSICAL OBSERVER TIME directly
+# Worker: receives PHYSICAL OBSERVER TIME directly
 def MovieWorker(tobs):
 
     # Fast-light: same emission time for all pixels
@@ -149,35 +145,25 @@ def MovieWorker(tobs):
     i_I1 = i_bghts1.reshape(N1, N1).T
     i_I2 = i_bghts2.reshape(N2, N2).T
 
-    # Print correct physical time
     print(f"Calculating an image at time t={np.round(tobs, 5)} (M)")
 
     return i_I0, i_I1, i_I2
 
 
+def main():
+    p = get_context("spawn").Pool(nthreads)
+    I0s, I1s, I2s = zip(*p.map(MovieWorker, t_frames))
+    p.close()
 
-# Storage arrays
-I0s = []
-I1s = []
-I2s = []
+    filename=path_fl+"FastLight_Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
 
+    h5f = h5py.File(filename, 'w')
+    h5f.create_dataset('bghts0', data=np.array(I0s))
+    h5f.create_dataset('bghts1', data=np.array(I1s))
+    h5f.create_dataset('bghts2', data=np.array(I2s))
 
-# Loop over SAME time grid as slow-light
-for tobs in t_frames:
-    i0, i1, i2 = MovieWorker(tobs)
+    print("Images ", filename, " created.\n")
+    h5f.close()
 
-    I0s.append(i0)
-    I1s.append(i1)
-    I2s.append(i2)
-
-filename=path_fl+"FastLight_Images_dx%s_dt%s_dtM%s_a%s_i%s_%s.csv"%(dx0,dt,dt_movie,spin_case,i_case,i_fname[:-3])
-
-
-h5f = h5py.File(filename, 'w')
-h5f.create_dataset('bghts0', data=np.array(I0s))
-h5f.create_dataset('bghts1', data=np.array(I1s))
-h5f.create_dataset('bghts2', data=np.array(I2s))
-
-print("Images ",filename," created.\n")
-h5f.close()
-
+if __name__ == '__main__':
+    main()
